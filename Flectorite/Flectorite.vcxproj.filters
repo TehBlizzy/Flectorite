@@ -1,0 +1,329 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Resource Files\imgui">
+      <UniqueIdentifier>{c7cff4dd-db3d-4db3-b777-f456c2b858f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\minhook">
+      <UniqueIdentifier>{9146de32-4ea6-4ab1-9ff3-9169e7d18f8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\magic_enum">
+      <UniqueIdentifier>{f4bc5268-e6a1-4d27-a7f8-ecdb5b2b809c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Cheats">
+      <UniqueIdentifier>{b493a845-b590-4c77-98d6-a2db1ce99f68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Menu">
+      <UniqueIdentifier>{c71c17bd-236e-4378-a7d9-f42f4d751595}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Cheats">
+      <UniqueIdentifier>{6170acbd-1e12-4942-a165-2d5ec358da19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Menu">
+      <UniqueIdentifier>{8b8fbf27-b5ef-49c6-9109-beb09c5f58ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core">
+      <UniqueIdentifier>{7a54685d-7e65-40b4-87a6-a81051208a81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core">
+      <UniqueIdentifier>{0479517d-2797-4145-aa69-98f0f0da6fb6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Menu\Effects">
+      <UniqueIdentifier>{3de6d331-8a6d-4904-a52d-a26d9c5f3cc2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Menu\Browser">
+      <UniqueIdentifier>{1e0215e9-bd32-4a74-a75f-74c59e14fa48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\imgui\Fonts">
+      <UniqueIdentifier>{7c86a36f-2511-4928-8144-57767bf9bfe1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ImGui\imconfig.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui_impl_dx12.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui_impl_win32.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui_internal.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imstb_rectpack.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imstb_textedit.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imstb_truetype.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Minhook\src\buffer.h">
+      <Filter>Resource Files\minhook</Filter>
+    </ClInclude>
+    <ClInclude Include="Minhook\src\trampoline.h">
+      <Filter>Resource Files\minhook</Filter>
+    </ClInclude>
+    <ClInclude Include="Minhook\src\HDE\hde32.h">
+      <Filter>Resource Files\minhook</Filter>
+    </ClInclude>
+    <ClInclude Include="Minhook\src\HDE\hde64.h">
+      <Filter>Resource Files\minhook</Filter>
+    </ClInclude>
+    <ClInclude Include="Minhook\src\HDE\pstdint.h">
+      <Filter>Resource Files\minhook</Filter>
+    </ClInclude>
+    <ClInclude Include="Minhook\src\HDE\table32.h">
+      <Filter>Resource Files\minhook</Filter>
+    </ClInclude>
+    <ClInclude Include="Minhook\src\HDE\table64.h">
+      <Filter>Resource Files\minhook</Filter>
+    </ClInclude>
+    <ClInclude Include="magic_enum\magic_enum.hpp">
+      <Filter>Resource Files\magic_enum</Filter>
+    </ClInclude>
+    <ClInclude Include="magic_enum\magic_enum_all.hpp">
+      <Filter>Resource Files\magic_enum</Filter>
+    </ClInclude>
+    <ClInclude Include="magic_enum\magic_enum_containers.hpp">
+      <Filter>Resource Files\magic_enum</Filter>
+    </ClInclude>
+    <ClInclude Include="magic_enum\magic_enum_flags.hpp">
+      <Filter>Resource Files\magic_enum</Filter>
+    </ClInclude>
+    <ClInclude Include="magic_enum\magic_enum_format.hpp">
+      <Filter>Resource Files\magic_enum</Filter>
+    </ClInclude>
+    <ClInclude Include="magic_enum\magic_enum_fuse.hpp">
+      <Filter>Resource Files\magic_enum</Filter>
+    </ClInclude>
+    <ClInclude Include="magic_enum\magic_enum_iostream.hpp">
+      <Filter>Resource Files\magic_enum</Filter>
+    </ClInclude>
+    <ClInclude Include="magic_enum\magic_enum_switch.hpp">
+      <Filter>Resource Files\magic_enum</Filter>
+    </ClInclude>
+    <ClInclude Include="magic_enum\magic_enum_utility.hpp">
+      <Filter>Resource Files\magic_enum</Filter>
+    </ClInclude>
+    <ClInclude Include="Cheats\ActorESP.h">
+      <Filter>Header Files\Cheats</Filter>
+    </ClInclude>
+    <ClInclude Include="Cheats\Aimbot.h">
+      <Filter>Header Files\Cheats</Filter>
+    </ClInclude>
+    <ClInclude Include="Cheats\References.h">
+      <Filter>Header Files\Cheats</Filter>
+    </ClInclude>
+    <ClInclude Include="Cheats\ItemDrops.h">
+      <Filter>Header Files\Cheats</Filter>
+    </ClInclude>
+    <ClInclude Include="Cheats\Mission.h">
+      <Filter>Header Files\Cheats</Filter>
+    </ClInclude>
+    <ClInclude Include="Cheats\WeaponModifications.h">
+      <Filter>Header Files\Cheats</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Cheat.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\SDK.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\SimpleIni.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu\Config.h">
+      <Filter>Header Files\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu\Dx12.h">
+      <Filter>Header Files\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu\Menu.h">
+      <Filter>Header Files\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu\Render.h">
+      <Filter>Header Files\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="Cheats\Player.h">
+      <Filter>Header Files\Cheats</Filter>
+    </ClInclude>
+    <ClInclude Include="Cheats\Cosmetics.h">
+      <Filter>Header Files\Cheats</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu\d3dx12.h">
+      <Filter>Header Files\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu\Fonts.h">
+      <Filter>Header Files\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu\imgui_custom.h">
+      <Filter>Header Files\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu\BlurCS.h">
+      <Filter>Header Files\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu\Effects\Effects.h">
+      <Filter>Source Files\Menu\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu\Browser\Browser.h">
+      <Filter>Source Files\Menu\Browser</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu\Browser\MediaControls.h">
+      <Filter>Source Files\Menu\Browser</Filter>
+    </ClInclude>
+    <ClInclude Include="Cheats\SavePointConfig.h">
+      <Filter>Header Files\Cheats</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\Fonts\Fonts.h">
+      <Filter>Resource Files\imgui\Fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\Fonts\IconsFontAwesome6.h">
+      <Filter>Resource Files\imgui\Fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="Cheats\ESP.h">
+      <Filter>Header Files\Cheats</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ImGui\imgui.cpp">
+      <Filter>Resource Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_draw.cpp">
+      <Filter>Resource Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_impl_dx12.cpp">
+      <Filter>Resource Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_impl_win32.cpp">
+      <Filter>Resource Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_tables.cpp">
+      <Filter>Resource Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_widgets.cpp">
+      <Filter>Resource Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Minhook\src\buffer.c">
+      <Filter>Resource Files\minhook</Filter>
+    </ClCompile>
+    <ClCompile Include="Minhook\src\hook.c">
+      <Filter>Resource Files\minhook</Filter>
+    </ClCompile>
+    <ClCompile Include="Minhook\src\trampoline.c">
+      <Filter>Resource Files\minhook</Filter>
+    </ClCompile>
+    <ClCompile Include="Minhook\src\HDE\hde32.c">
+      <Filter>Resource Files\minhook</Filter>
+    </ClCompile>
+    <ClCompile Include="Minhook\src\HDE\hde64.c">
+      <Filter>Resource Files\minhook</Filter>
+    </ClCompile>
+    <ClCompile Include="SDK\Basic.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="SDK\CoreUObject_functions.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Menu\Render.cpp">
+      <Filter>Source Files\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="Menu\Dx12.cpp">
+      <Filter>Source Files\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="Menu\Config.cpp">
+      <Filter>Source Files\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Cheat.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\dllmain.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\SDK.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\sdk_init.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Cheats\ActorESP.cpp">
+      <Filter>Source Files\Cheats</Filter>
+    </ClCompile>
+    <ClCompile Include="Cheats\Aimbot.cpp">
+      <Filter>Source Files\Cheats</Filter>
+    </ClCompile>
+    <ClCompile Include="Cheats\References.cpp">
+      <Filter>Source Files\Cheats</Filter>
+    </ClCompile>
+    <ClCompile Include="Cheats\ItemDrops.cpp">
+      <Filter>Source Files\Cheats</Filter>
+    </ClCompile>
+    <ClCompile Include="Cheats\Mission.cpp">
+      <Filter>Source Files\Cheats</Filter>
+    </ClCompile>
+    <ClCompile Include="Cheats\WeaponModifications.cpp">
+      <Filter>Source Files\Cheats</Filter>
+    </ClCompile>
+    <ClCompile Include="Cheats\Player.cpp">
+      <Filter>Source Files\Cheats</Filter>
+    </ClCompile>
+    <ClCompile Include="Cheats\Cosmetics.cpp">
+      <Filter>Source Files\Cheats</Filter>
+    </ClCompile>
+    <ClCompile Include="Menu\imgui_custom.cpp">
+      <Filter>Source Files\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="Menu\Effects\Effects.cpp">
+      <Filter>Source Files\Menu\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Menu\Browser\Browser.cpp">
+      <Filter>Source Files\Menu\Browser</Filter>
+    </ClCompile>
+    <ClCompile Include="Menu\Browser\MediaControls.cpp">
+      <Filter>Source Files\Menu\Browser</Filter>
+    </ClCompile>
+    <ClCompile Include="Cheats\SavePointConfig.cpp">
+      <Filter>Source Files\Cheats</Filter>
+    </ClCompile>
+    <ClCompile Include="Menu\Menu.cpp">
+      <Filter>Source Files\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="Cheats\ESP.cpp">
+      <Filter>Source Files\Cheats</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Menu\BlurCS.hlsl">
+      <Filter>Header Files\Menu</Filter>
+    </FxCompile>
+    <FxCompile Include="Convert.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="ImGui\Fonts\fa-regular-400.ttf">
+      <Filter>Resource Files\imgui\Fonts</Filter>
+    </Font>
+    <Font Include="ImGui\Fonts\fa-solid-900.ttf">
+      <Filter>Resource Files\imgui\Fonts</Filter>
+    </Font>
+  </ItemGroup>
+</Project>

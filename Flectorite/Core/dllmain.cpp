@@ -1,0 +1,266 @@
+
+// dllmain.cpp : Entry point for the DLL application.
+#include <windows.h>
+
+#include "../Menu/Dx12.h" // Adjusted include path to correctly locate the file
+#include "Cheat.h"
+#include "../Menu/Config.h"
+#include <iostream>
+#include <fstream>
+
+//#define IS_DEBUG_VERSION
+
+
+DWORD WINAPI MainThread(LPVOID lpParameter) {
+
+#ifdef IS_DEBUG_VERSION
+	// Uncomment the next 4 lines to show a console window. Give the main game window focus before the 5 second sleep finishes or the DX12 will grab the wrong window size
+	AllocConsole();
+	FILE* outFile;
+	errno_t err = freopen_s(&outFile, "CONOUT$", "w", stdout);
+	if (err != 0) {
+		std::cerr << "Error opening file" << std::endl;
+		return 1;
+	}
+	//freopen_s(nullptr, "TFD_Log_In.log", "r", stdin);
+#endif
+
+
+
+	//HMODULE hD3D12 = nullptr;
+	//while(hD3D12 == nullptr)
+	//	hD3D12 = GetModuleHandleA("d3d12.dll");
+	//auto pFn = (DX12::PFN_D3D12CreateDevice)GetProcAddress(hD3D12, "D3D12CreateDevice");
+	//MH_CreateHook((LPVOID)pFn, DX12::hkD3D12CreateDevice, reinterpret_cast<LPVOID*>(&DX12::oD3D12CreateDevice));
+	//MH_EnableHook((LPVOID)pFn);
+
+	uintptr_t moduleBase = 0x0;
+	uintptr_t moduleSize = 0x0;
+	int procID = 0;
+	while (moduleBase == 0 || moduleSize == 0)
+	{
+		static int Tries = 0;
+		procID = GetCurrentProcessId();
+		HANDLE hModule = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, procID);
+		MODULEENTRY32 mEntry;
+		mEntry.dwSize = sizeof(mEntry);
+
+		do
+		{
+			if (!strcmp(mEntry.szModule, "M1-Win64-Shipping.exe"))
+			{
+				moduleBase = (uintptr_t)mEntry.hModule;
+				moduleSize = mEntry.modBaseSize;
+			}
+		} while (Module32Next(hModule, &mEntry));
+		CloseHandle(hModule);
+
+		if (moduleBase == 0 || moduleSize == 0)
+			Tries++;
+		if (Tries > 100)
+			break;
+	}
+	if (moduleBase == 0 || moduleSize == 0)
+	{
+		MessageBoxW(NULL, L"There was an issue getting the module for M1-Win64-Shipping.exe!\nPlease check your injector settings.\n\nThe process has been terminated for safety.", L"Flectorite", MB_OK | MB_ICONWARNING);
+		ExitProcess(0);
+		return 0;
+	}
+
+
+	/*uintptr_t NGSPtr = TFD::SearchSignature(procID, moduleBase, moduleSize, TFD::NGSSig, TFD::NGSMask);
+	if (!NGSPtr)
+	{
+		MessageBoxW(NULL, L"There was an issue bypassing BlackCipher!\nThe process BlackCipher.aes will launch during the following loading screens!\nIf you do not kill that process, you are at risk of getting banned.", L"Flectorite", MB_OK | MB_ICONWARNING);
+#ifdef IS_DEBUG_VERSION
+		std::cout << "[Cheat] Failed to find NGS bypass.\n";
+#endif
+	}
+	else
+	{
+		NGSPtr += 0x28;
+		uintptr_t NGSByte = moduleBase + NGSPtr;
+		DWORD old;
+		byte bypass = 0x75;
+		VirtualProtect((void*)NGSByte, sizeof(uint8_t), PAGE_EXECUTE_READWRITE, &old);
+		memcpy((void*)NGSByte, &bypass, sizeof(uint8_t));
+		VirtualProtect((void*)NGSByte, sizeof(uint8_t), old, NULL);
+
+		NGSByte = moduleBase + NGSPtr + 0x47;
+		bypass = 0x84;
+		VirtualProtect((void*)NGSByte, sizeof(uint8_t), PAGE_EXECUTE_READWRITE, &old);
+		memcpy((void*)NGSByte, &bypass, sizeof(uint8_t));
+		VirtualProtect((void*)NGSByte, sizeof(uint8_t), old, NULL);
+	}*/
+
+
+	bool InitHook = false;
+	while (InitHook == false) {
+		if (DX12::Init() == true) {
+			DX12::CreateHook(160, (void**)&DX12::oCreateSwapChain, DX12::hkCreateSwapChain);
+			DX12::CreateHook(140, (void**)&DX12::oPresent, DX12::hkPresent);
+			InitHook = true;
+		}
+	}
+
+	//LoadLibrary("C:\\Program Files\\Microsoft PIX\\2507.11\\WinPixGpuCapturer.dll");
+
+	bool WindowFocus = false;
+	while (WindowFocus == false) {
+		DWORD ForegroundWindowProcessID;
+		GetWindowThreadProcessId(GetForegroundWindow(), &ForegroundWindowProcessID);
+		if (GetCurrentProcessId() == ForegroundWindowProcessID) {
+
+			DX12::Process::ID = GetCurrentProcessId();
+			DX12::Process::Handle = GetCurrentProcess();
+			DX12::Process::Hwnd = GetForegroundWindow();
+
+			char TempClassName[MAX_PATH];
+			GetClassName(DX12::Process::Hwnd, TempClassName, sizeof(TempClassName));
+//#ifdef IS_DEBUG_VERSION
+			//std::cout << "[Main]: " << TempClassName << std::endl;
+//#endif
+			//UnrealWindow
+			if (strcmp(TempClassName, "UnrealWindow") == 0)
+			{
+				RECT TempRect;
+				GetWindowRect(DX12::Process::Hwnd, &TempRect);
+				DX12::Process::WindowWidth = TempRect.right - TempRect.left;
+				DX12::Process::WindowHeight = TempRect.bottom - TempRect.top;
+
+				char TempTitle[MAX_PATH];
+				GetWindowText(DX12::Process::Hwnd, TempTitle, sizeof(TempTitle));
+				DX12::Process::Title = TempTitle;
+
+
+				DX12::Process::ClassName = TempClassName;
+
+				char TempPath[MAX_PATH];
+				GetModuleFileNameEx(DX12::Process::Handle, NULL, TempPath, sizeof(TempPath));
+				DX12::Process::Path = TempPath;
+				WindowFocus = true;
+			}
+		}
+		Sleep(100);
+	}
+
+	DX12::isOverlayReady = true;
+
+	bool BlackCipherFound = false;
+	while (!BlackCipherFound)
+	{
+		HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+		if (hSnapshot == INVALID_HANDLE_VALUE) return false;
+
+		PROCESSENTRY32W processEntry;
+		processEntry.dwSize = sizeof(PROCESSENTRY32W);
+
+		if (Process32FirstW(hSnapshot, &processEntry)) {
+			do {
+				if (wcscmp(processEntry.szExeFile, L"BlackCipher64.aes") == 0) {
+					BlackCipherFound = true;
+					break;
+				}
+			} while (Process32NextW(hSnapshot, &processEntry));
+		}
+		CloseHandle(hSnapshot);
+		Sleep(100);
+	}
+	Sleep(CFG::cfg_BCDelay);
+	std::wstring command = L"taskkill /F /IM BlackCipher64.aes";
+
+	SHELLEXECUTEINFOW sei = { 0 };
+	sei.cbSize = sizeof(SHELLEXECUTEINFOW);
+	sei.fMask = SEE_MASK_NOASYNC;
+	sei.hwnd = NULL;
+	sei.lpVerb = L"runas";
+	sei.lpFile = L"cmd.exe";
+	sei.lpParameters = (L"/c " + command).c_str();
+	sei.nShow = SW_HIDE;
+
+	if (!ShellExecuteExW(&sei)) {
+		MessageBoxW(NULL, L"There was an issue killing BlackCipher!\nIf you do not kill the process BlackCipher64.aes, you are at risk of getting banned.", L"Flectorite", MB_OK | MB_ICONWARNING);
+	}
+
+	bool InitCheat = false;
+	while(InitCheat == false)
+	{
+		TFD::Init_Code status = TFD::InitSDK(procID, moduleBase, moduleSize);
+		if (status != TFD::Init_Code::Success)
+		{
+#ifdef IS_DEBUG_VERSION
+			std::cout << "Cheat Init Status: " << status << std::endl;
+#endif
+			Sleep(100);
+		}
+		else
+			InitCheat = true;
+	}
+
+	return 0;
+}
+
+BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
+	DWORD windowProcessId;
+	GetWindowThreadProcessId(hwnd, &windowProcessId);
+
+	// Compare the process ID with the target process ID
+	if (windowProcessId == static_cast<DWORD>(lParam)) {
+		// Get the class name of the window
+		char className[256];
+		GetClassNameA(hwnd, className, sizeof(className));
+
+		// Ignore console windows
+		if (strcmp(className, "ConsoleWindowClass") == 0) {
+			return TRUE; // Continue enumeration
+		}
+
+		// Check if the window is the main application window
+		if (GetWindow(hwnd, GW_OWNER) == nullptr && IsWindowVisible(hwnd)) {
+			// Main window found
+			SetLastError(0); // Clear the last error to indicate success
+			*reinterpret_cast<HWND*>(lParam) = hwnd;
+			return FALSE; // Stop enumeration
+		}
+	}
+	return TRUE; // Continue enumeration
+}
+
+HWND GetMainWindowHandle(DWORD processId) {
+	HWND hwndMain = nullptr;
+	LPARAM lParam = reinterpret_cast<LPARAM>(&hwndMain);
+
+	// Enumerate all top-level windows
+	EnumWindows(EnumWindowsProc, lParam);
+
+	// If hwndMain is still nullptr, no main window was found
+	if (hwndMain == nullptr && GetLastError() == 0) {
+		return hwndMain;
+	}
+
+	return hwndMain;
+}
+
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
+	switch (dwReason) {
+	case DLL_PROCESS_ATTACH:
+		DisableThreadLibraryCalls(hModule);
+		DX12::Process::Module = hModule;
+		GetModuleFileNameA(hModule, DX12::dlldir, 512);
+		for (size_t i = strlen(DX12::dlldir); i > 0; i--) { if (DX12::dlldir[i] == '\\') { DX12::dlldir[i + 1] = 0; break; } }
+		CreateThread(0, 0, MainThread, 0, 0, 0);
+		break;
+	case DLL_PROCESS_DETACH:
+		FreeLibraryAndExitThread(hModule, TRUE);
+		DX12::DisableAll();
+		break;
+	case DLL_THREAD_ATTACH:
+		break;
+	case DLL_THREAD_DETACH:
+		break;
+	default:
+		break;
+	}
+	return TRUE;
+}
+
