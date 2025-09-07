@@ -13,6 +13,7 @@ namespace CFG
 	extern int		cfg_ShowMenuKey;
 	extern bool		cfg_Menu_EnableTooltips;
 	extern bool		cfg_Menu_ShowEnabledFeatures;
+	extern float	cfg_Menu_DisplayScale;
 
 	extern int		cfg_VERSION;
 	extern int		cfg_Language;

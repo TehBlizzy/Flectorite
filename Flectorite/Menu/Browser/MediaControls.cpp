@@ -76,7 +76,7 @@ namespace MediaControls
             static DWORD lastTime = GetTickCount();
             DWORD currentTime = GetTickCount();
 
-            if (currentTime - lastTime >= 1000)    
+            if (currentTime - lastTime >= 1000)
             {
                 g_CurrentMedia.currentTime += 1.0f;
                 lastTime = currentTime;
@@ -90,7 +90,7 @@ namespace MediaControls
 
         static DWORD lastScan = 0;
         DWORD currentTime = GetTickCount();
-        if (currentTime - lastScan > 10000)    
+        if (currentTime - lastScan > 10000)
         {
             ScanSongsFolder();
             lastScan = currentTime;
@@ -183,7 +183,7 @@ namespace MediaControls
                                 song.artist = "Unknown Artist";
                             }
 
-                            song.duration = 180.0f;    
+                            song.duration = 180.0f;
 
                             g_Playlist.push_back(song);
                         }
@@ -261,7 +261,7 @@ namespace MediaControls
     float GetAudioDuration(const std::wstring& filePath)
     {
         if (!g_MFInitialized)
-            return 180.0f;     
+            return 180.0f;
 
         IMFSourceResolver* pSourceResolver = nullptr;
         HRESULT hr = MFCreateSourceResolver(&pSourceResolver);
@@ -288,7 +288,7 @@ namespace MediaControls
 
         UINT64 duration = 0;
         hr = pPD->GetUINT64(MF_PD_DURATION, &duration);
-        float durationSeconds = 180.0f;   
+        float durationSeconds = 180.0f;
 
         if (SUCCEEDED(hr))
         {
@@ -430,7 +430,7 @@ namespace MediaControls
     {
         if (g_CurrentMedia.currentSongIndex < 0 && !g_Playlist.empty())
         {
-            LoadSong(0);       
+            LoadSong(0);
         }
 
         if (g_CurrentMedia.currentSongIndex >= 0 && g_AudioEngineReady)
@@ -499,7 +499,7 @@ namespace MediaControls
         {
             nextIndex = g_CurrentMedia.currentSongIndex + 1;
             if (nextIndex >= (int)g_Playlist.size())
-                nextIndex = 0;    
+                nextIndex = 0;
         }
 
         if (g_pSession && g_AudioEngineReady)
@@ -551,11 +551,11 @@ namespace MediaControls
 
         int prevIndex = g_CurrentMedia.currentSongIndex - 1;
         if (prevIndex < 0)
-            prevIndex = (int)g_Playlist.size() - 1;    
+            prevIndex = (int)g_Playlist.size() - 1;
 
         LoadSong(prevIndex);
         if (g_CurrentMedia.isPlaying)
-            PlayPause();    
+            PlayPause();
     }
 
     void Stop()
@@ -629,6 +629,7 @@ namespace MediaControls
 
     void RenderMediaControls()
     {
+        const float scale = CFG::cfg_Menu_DisplayScale;
         ImGui::Text("Now: %s", g_CurrentMedia.title);
         if (strlen(g_CurrentMedia.artist) > 0 && strcmp(g_CurrentMedia.artist, "Unknown Artist") != 0)
         {
@@ -665,7 +666,7 @@ namespace MediaControls
                 if (g_CurrentMedia.totalTime > 0 && g_pSession && g_AudioEngineReady)
                 {
                     float newTime = progress * g_CurrentMedia.totalTime;
-                    LONGLONG seekTime = (LONGLONG)(newTime * 10000000);     
+                    LONGLONG seekTime = (LONGLONG)(newTime * 10000000);
 
                     PROPVARIANT varSeek;
                     PropVariantInit(&varSeek);
@@ -688,29 +689,29 @@ namespace MediaControls
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(CFG::cfg_Colors_BackgroundR, CFG::cfg_Colors_BackgroundG, CFG::cfg_Colors_BackgroundB, 0.95f));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.1f, 0.1f, 0.1f, 0.7f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2f, 0.2f, 0.2f, 0.7f));
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 10.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.0f, 0.5f));     
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 10.0f * scale);
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.0f * scale, 0.5f * scale));
 
-        if (ImGui::Button("Last", ImVec2(40, 20)))
+        if (ImGui::Button("Last", ImVec2(40 * scale, 20 * scale)))
         {
             Previous();
         }
 
         ImGui::SameLine();
         const char* playPauseText = g_CurrentMedia.isPlaying ? "Pause" : "Play";
-        if (ImGui::Button(playPauseText, ImVec2(40, 20)))
+        if (ImGui::Button(playPauseText, ImVec2(40 * scale, 20 * scale)))
         {
             PlayPause();
         }
 
         ImGui::SameLine();
-        if (ImGui::Button("Next", ImVec2(40, 20)))
+        if (ImGui::Button("Next", ImVec2(40 * scale, 20 * scale)))
         {
             Next();
         }
 
         ImGui::SameLine();
-        if (ImGui::Button("Stop", ImVec2(40, 20)))
+        if (ImGui::Button("Stop", ImVec2(40 * scale, 20 * scale)))
         {
             Stop();
         }
@@ -723,7 +724,7 @@ namespace MediaControls
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(main_color.Value.x * 1.2f, main_color.Value.y * 1.2f, main_color.Value.z * 1.2f, 1.0f));
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(main_color.Value.x * 1.4f, main_color.Value.y * 1.4f, main_color.Value.z * 1.4f, 1.0f));
         }
-        if (ImGui::Button("Mix", ImVec2(40, 20)))
+        if (ImGui::Button("Mix", ImVec2(40 * scale, 20 * scale)))
         {
             g_ShuffleEnabled = !g_ShuffleEnabled;
         }
@@ -758,7 +759,7 @@ namespace MediaControls
         else
         {
             ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.08f, 0.08f, 0.08f, 0.9f));
-            ImGui::BeginChild("Playlist", ImVec2(0, 150), true);
+            ImGui::BeginChild("Playlist", ImVec2(0, 150 * scale), true);
 
             for (int i = 0; i < (int)g_Playlist.size(); i++)
             {
@@ -787,9 +788,9 @@ namespace MediaControls
                         (int)(main_color.Value.x * 255),
                         (int)(main_color.Value.y * 255),
                         (int)(main_color.Value.z * 255),
-                        30      
+                        30
                     );
-                    drawList->AddRectFilled(itemPos, ImVec2(itemPos.x + itemSize.x, itemPos.y + itemSize.y), glowColor, 3.0f);
+                    drawList->AddRectFilled(itemPos, ImVec2(itemPos.x + itemSize.x, itemPos.y + itemSize.y), glowColor, 3.0f * scale);
                 }
 
                 if (isCurrentSong)
@@ -854,14 +855,11 @@ namespace MediaControls
             }
 
             ImGui::EndChild();
-            ImGui::PopStyleColor();     
+            ImGui::PopStyleColor();
         }
     }
 
     void RenderQuickLaunch()
     {
     }
-
-
-
 }
