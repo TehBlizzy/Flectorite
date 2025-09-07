@@ -14,6 +14,7 @@ namespace CFG
 	int			cfg_ShowMenuKey = ImGuiKey_Insert;
 	bool		cfg_Menu_EnableTooltips = true;
 	bool		cfg_Menu_ShowEnabledFeatures = false;
+	float		cfg_Menu_DisplayScale = 1.0f;
 
 
 
@@ -316,6 +317,7 @@ namespace CFG
 			LoadValue("Menu", "EnableTooltips", cfg_Menu_EnableTooltips);
 			LoadValue("Menu", "ShowEnabledFeatures", cfg_Menu_ShowEnabledFeatures);
 			LoadValue("Menu", "BlackCipherDelay", cfg_BCDelay);
+			LoadValue("Menu", "DisplayScale", cfg_Menu_DisplayScale);
 
 			LoadValue("FriendlyESP", "Enable", cfg_Friendly_Enable);
 			LoadValue("FriendlyESP", "DrawNames", cfg_Friendly_DrawNames);
@@ -644,6 +646,7 @@ namespace CFG
 		SaveValue("Menu", "EnableTooltips", cfg_Menu_EnableTooltips);
 		SaveValue("Menu", "ShowEnabledFeatures", cfg_Menu_ShowEnabledFeatures);
 		SaveValue("Menu", "BlackCipherDelay", cfg_BCDelay);
+		SaveValue("Menu", "DisplayScale", cfg_Menu_DisplayScale);
 
 		SaveValue("FriendlyESP", "Enable", cfg_Friendly_Enable);
 		SaveValue("FriendlyESP", "DrawNames", cfg_Friendly_DrawNames);

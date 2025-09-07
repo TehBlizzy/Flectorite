@@ -4,6 +4,7 @@
 #include "../Cheats/Mission.h"
 #include "../Cheats/SavePointConfig.h"
 #include "imgui_custom.h"
+#include <cmath>
 
 //#define IS_DEBUG_VERSION
 namespace Cheat
@@ -181,6 +182,24 @@ namespace Menu
 
 		if (ShowMenu)
 		{
+			static float last_scale = 1.0f;
+			static bool style_initialized = false;
+			static ImGuiStyle base_style;
+			ImGuiStyle& style = ImGui::GetStyle();
+
+			if (!style_initialized) {
+				base_style = style;
+				style_initialized = true;
+			}
+
+			if (last_scale != CFG::cfg_Menu_DisplayScale) {
+				style = base_style;
+				style.ScaleAllSizes(CFG::cfg_Menu_DisplayScale);
+				last_scale = CFG::cfg_Menu_DisplayScale;
+			}
+			ImGui::GetIO().FontGlobalScale = CFG::cfg_Menu_DisplayScale;
+
+			const float scale = CFG::cfg_Menu_DisplayScale;
 
 			if (!effectsInitialized)
 			{
@@ -262,7 +281,7 @@ namespace Menu
 #endif
 
 
-			ImGui::SetNextWindowSize(ImVec2(827, 604));
+			ImGui::SetNextWindowSize(ImVec2(827 * scale, 604 * scale));
 			ImGui::Begin("General", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoBringToFrontOnFocus);
 			{
 				auto draw = ImGui::GetWindowDrawList();
@@ -303,19 +322,19 @@ namespace Menu
 					}
 				}
 
-				draw->AddRectFilled(p + ImVec2(0, 55), p + ImVec2(827, 604), winbg_color, s.WindowRounding, ImDrawFlags_RoundCornersBottom);
+				draw->AddRectFilled(p + ImVec2(0, 55 * scale), p + ImVec2(827 * scale, 604 * scale), winbg_color, s.WindowRounding, ImDrawFlags_RoundCornersBottom);
 
 				Effects::g_EffectsManager.UpdateColors(main_color, main_color);
-				Effects::g_EffectsManager.Render(draw, p, ImVec2(827, 604));
-				draw->AddRectFilled(p + ImVec2(0, 55), p + ImVec2(187, 604), background_color, s.WindowRounding, ImDrawFlags_RoundCornersBottomLeft);
-				draw->AddRectFilled(p, p + ImVec2(827, 55), background_color/*ImColor(5, 5, 5, 45)*/, s.WindowRounding, ImDrawFlags_RoundCornersTop);
-				draw->AddRectFilled(p + ImVec2(0, 52), p + ImVec2(827, 55), main_color, s.WindowRounding);
+				Effects::g_EffectsManager.Render(draw, p, ImVec2(827 * scale, 604 * scale));
+				draw->AddRectFilled(p + ImVec2(0, 55 * scale), p + ImVec2(187 * scale, 604 * scale), background_color, s.WindowRounding, ImDrawFlags_RoundCornersBottomLeft);
+				draw->AddRectFilled(p, p + ImVec2(827 * scale, 55 * scale), background_color/*ImColor(5, 5, 5, 45)*/, s.WindowRounding, ImDrawFlags_RoundCornersTop);
+				draw->AddRectFilled(p + ImVec2(0, 52 * scale), p + ImVec2(827 * scale, 55 * scale), main_color, s.WindowRounding);
 
 				ImGui::PushFont(logo_font);
-				draw->AddText(GetTextCenterPosition(p, p + ImVec2(827, 52), "Flectorite v2.41"), ImColor(1.f, 1.f, 1.f, 1.f), "Flectorite v2.41");
+				draw->AddText(GetTextCenterPosition(p, p + ImVec2(827 * scale, 52 * scale), "Flectorite v2.41"), ImColor(1.f, 1.f, 1.f, 1.f), "Flectorite v2.41");
 				ImGui::PopFont();
 
-				ImGui::SetCursorPos(ImVec2(10, 70));
+				ImGui::SetCursorPos(ImVec2(10 * scale, 70 * scale));
 
 				ImGui::BeginGroup();
 
@@ -346,12 +365,16 @@ namespace Menu
 
 				ImGui::EndGroup();
 
-				ImGui::SetCursorPos(ImVec2(197, 72));
+				ImGui::SetCursorPos(ImVec2(197 * scale, 72 * scale));
 				ImGui::BeginGroup();
 				{
+					const float content_width = ImGui::GetContentRegionAvail().x; // Use this for one-column tabs
+					const float column_width = (content_width - style.ItemSpacing.x) / 2.0f; // Use this for two-column tabs
+					const float child_height = 532 * scale;
+
 					if (iTabs == 0)
 					{
-						ImGui::BeginChild("FriendlyESP", ImVec2(frame_size.x, 532));
+						ImGui::BeginChild("FriendlyESP", ImVec2(column_width, child_height));
 						{
 							ImGui::CustomCheckbox("Enable Friendly ESP", &CFG::cfg_Friendly_Enable);
 							ImGui::QuickTooltip("ESP for Players and Allies.");
@@ -375,8 +398,8 @@ namespace Menu
 
 							ImGui::EndChild();
 						}
-						ImGui::SetCursorPos(ImVec2(207 + frame_size.x, 72));
-						ImGui::BeginChild("EnemyESP", ImVec2(frame_size.x, 532));
+						ImGui::SameLine();
+						ImGui::BeginChild("EnemyESP", ImVec2(column_width, child_height));
 						{
 							ImGui::CustomCheckbox("Enable Enemy ESP", &CFG::cfg_Enemy_Enable);
 							ImGui::QuickTooltip("ESP for Enemies");
@@ -399,7 +422,7 @@ namespace Menu
 					}
 					else if (iTabs == 1)
 					{
-						ImGui::BeginChild("Aimbot", ImVec2(frame_size.x, 532));
+						ImGui::BeginChild("Aimbot", ImVec2(content_width, child_height));
 						{
 							ImGui::CustomCheckbox("Enable Aimbot", &CFG::cfg_Aim_EnableAimbot);
 							const char* AimbotModes[] = {
@@ -426,7 +449,7 @@ namespace Menu
 					}
 					else if (iTabs == 2)
 					{
-						ImGui::BeginChild("CombatFeatures", ImVec2(frame_size.x, 532));
+						ImGui::BeginChild("CombatFeatures", ImVec2(column_width, child_height));
 						{
 							ImGui::KeybindWithToggle("Enable Silent Aim", &CFG::cfg_Aim_SilentAim, &CFG::cfg_Aim_SilentAimKey);
 							ImGui::QuickTooltip("You still need to look in the direction of the Gold-colored target circle.");
@@ -441,8 +464,8 @@ namespace Menu
 
 							ImGui::EndChild();
 						}
-						ImGui::SetCursorPos(ImVec2(207 + frame_size.x, 72));
-						ImGui::BeginChild("CombatFeatures2", ImVec2(frame_size.x, 532));
+						ImGui::SameLine();
+						ImGui::BeginChild("CombatFeatures2", ImVec2(column_width, child_height));
 						{
 							ImGui::CustomCheckbox("Enable Preset Overlay", &CFG::cfg_Hotswap_EnableOverlay);
 							ImGui::QuickTooltip("You need to have a preset saved and highlighted in the Overlay for Resupply.");
@@ -459,7 +482,7 @@ namespace Menu
 					}
 					else if (iTabs == 3)
 					{
-						ImGui::BeginChild("LootESP", ImVec2(frame_size.x, 532));
+						ImGui::BeginChild("LootESP", ImVec2(column_width, child_height));
 						{
 							ImGui::CustomCheckbox("Enable Loot ESP", &CFG::cfg_Loot_EnableItemESP);
 							ImGui::QuickTooltip("ESPs No Longer Show in Menu.");
@@ -473,8 +496,8 @@ namespace Menu
 							ImGui::CustomCheckbox("Item Names", &CFG::cfg_Loot_DrawItemNames);
 							ImGui::EndChild();
 						}
-						ImGui::SetCursorPos(ImVec2(207 + frame_size.x, 72));
-						ImGui::BeginChild("ContainerESP", ImVec2(frame_size.x, 532));
+						ImGui::SameLine();
+						ImGui::BeginChild("ContainerESP", ImVec2(column_width, child_height));
 						{
 							ImGui::CustomCheckbox("Mission Item ESP", &CFG::cfg_Loot_MissionItemESP);
 							ImGui::CustomCheckbox("Encrypted Vaults", &CFG::cfg_Loot_DrawVaults);
@@ -488,7 +511,7 @@ namespace Menu
 					}
 					else if (iTabs == 4)
 					{
-						ImGui::BeginChild("Missions", ImVec2(frame_size.x, 532));
+						ImGui::BeginChild("Missions", ImVec2(column_width, child_height));
 						{
 							ImGui::CustomCheckbox("Enable Mission ESP", &CFG::cfg_Mission_EnableMissionESP);
 							ImGui::KeybindWithToggle("Enable Mission Auto-Restart", &CFG::cfg_Mission_EnableMissionAutoRestart, &CFG::cfg_Mission_MissionAutoRestartKey);
@@ -504,8 +527,8 @@ namespace Menu
 							ImGui::Keybind("Mission Task Teleport Key", &CFG::cfg_Mission_MissionTaskTeleportKey);
 							ImGui::EndChild();
 						}
-						ImGui::SetCursorPos(ImVec2(207 + frame_size.x, 72));
-						ImGui::BeginChild("MissionsList", ImVec2(frame_size.x, 532));
+						ImGui::SameLine();
+						ImGui::BeginChild("MissionsList", ImVec2(column_width, child_height));
 						{
 							if (Cheat::Missions != nullptr)
 							{
@@ -561,7 +584,7 @@ namespace Menu
 					}
 					else if (iTabs == 5)
 					{
-						ImGui::BeginChild("LootFeatures", ImVec2(frame_size.x, 532));
+						ImGui::BeginChild("LootFeatures", ImVec2(column_width, child_height));
 						{
 							ImGui::KeybindWithToggle("Enable Loot Vacuum", &CFG::cfg_Loot_EnableLootVacuum, &CFG::cfg_Loot_LootVacuumKey);
 							ImGui::QuickTooltip("Isnt Really 'Visible' to Other Players, They Dont See Your Loot.");
@@ -589,8 +612,8 @@ namespace Menu
 
 							ImGui::EndChild();
 						}
-						ImGui::SetCursorPos(ImVec2(207 + frame_size.x, 72));
-						ImGui::BeginChild("LootFeatures2", ImVec2(frame_size.x, 532));
+						ImGui::SameLine();
+						ImGui::BeginChild("LootFeatures2", ImVec2(column_width, child_height));
 						{
 							ImGui::Keybind("Grab Loot", &CFG::cfg_Loot_GrabLootKey);
 							ImGui::QuickTooltip("Acts as a Key-Press Vacuum, Only Grabbing Items and Teleporting Them When Pressed. Ignores Filters.");
@@ -617,7 +640,7 @@ namespace Menu
 					}
 					else if (iTabs == 6)
 					{
-						ImGui::BeginChild("TeleportFeatures", ImVec2(frame_size.x, 532));
+						ImGui::BeginChild("TeleportFeatures", ImVec2(column_width, child_height));
 						{
 							ImGui::Text("Enabling Options Will Show More.");
 							ImGui::Keybind("Teleport Forward Key", &CFG::cfg_Teleport_TeleportKey);
@@ -707,8 +730,8 @@ namespace Menu
 							}
 							ImGui::EndChild();
 						}
-						ImGui::SetCursorPos(ImVec2(207 + frame_size.x, 72));
-						ImGui::BeginChild("SavePointFeatures", ImVec2(frame_size.x, 532));
+						ImGui::SameLine();
+						ImGui::BeginChild("SavePointFeatures", ImVec2(column_width, child_height));
 						{
 							ImGui::CustomCheckbox("Enable Save Point Overlay", &CFG::cfg_SavePoint_EnableSavePointOverlay);
 							if (CFG::cfg_SavePoint_EnableSavePointOverlay)
@@ -779,7 +802,7 @@ namespace Menu
 					}
 					else if (iTabs == 7)
 					{
-						ImGui::BeginChild("Customization", ImVec2(frame_size.x, 532));
+						ImGui::BeginChild("Customization", ImVec2(content_width, child_height));
 						{
 							if (ImGui::CustomButton("'Unlock' All Customization Items"))
 							{
@@ -853,7 +876,7 @@ namespace Menu
 					}
 					else if (iTabs == 8)
 					{
-						ImGui::BeginChild("MiscFeatures", ImVec2(frame_size.x, 532));
+						ImGui::BeginChild("MiscFeatures", ImVec2(column_width, child_height));
 						{
 							ImGui::Keybind("Timescale Toggle Key", &CFG::cfg_Extra_TimeScaleKey);
 							ImGui::QuickTooltip("Increases the Clients Speed, Too High and You'll Experience Rubber Banding");
@@ -877,57 +900,79 @@ namespace Menu
 								Cheat::CreateConsole();
 							}
 							ImGui::EndChild();
-							ImGui::SetCursorPos(ImVec2(207 + frame_size.x, 72));
-							ImGui::BeginChild("Telekinesis", ImVec2(frame_size.x, 532));
+						}
+						ImGui::SameLine();
+						ImGui::BeginChild("Telekinesis", ImVec2(column_width, child_height));
+						{
+							ImGui::CustomCheckbox("Enable Telekinesis", &CFG::cfg_Telekinesis_Enable);
+							ImGui::QuickTooltip("Physgun-like (Garry's Mod / Halo Forge, System to grab and move Interactable objects");
+
+							if (CFG::cfg_Telekinesis_Enable)
 							{
-								ImGui::CustomCheckbox("Enable Telekinesis", &CFG::cfg_Telekinesis_Enable);
-								ImGui::QuickTooltip("Physgun-like (Garry's Mod / Halo Forge, System to grab and move Interactable objects");
-
-								if (CFG::cfg_Telekinesis_Enable)
+								ImGui::Keybind("Telekinesis Grab Key", &CFG::cfg_Telekinesis_GrabKey);
+								ImGui::QuickTooltip("Hold this key to grab and move the targeted object, Use CTRL+WASD to Rotate grabbed objects.\n"
+									"Need to hold CTRL to rotate it as well as push away and pull back, Q Pushes, E Pulls.");
+								ImGui::CustomSliderFloat("Telekinesis FOV", &CFG::cfg_Telekinesis_FOV, 5.0f, 50.0f);
+								ImGui::QuickTooltip("Field of view for targeting objects (smaller = more precise)");
+								ImGui::CustomSliderFloat("Marker Size", &CFG::cfg_Telekinesis_MarkerSize, 5.0f, 50.0f);
+								char distanceLabel[64];
+								sprintf_s(distanceLabel, "Object Distance (%.1fm)", CFG::cfg_Telekinesis_Distance / 100.0f);
+								if (ImGui::CustomSliderFloat(distanceLabel, &CFG::cfg_Telekinesis_Distance, 100.0f, 20000.0f))
 								{
-									ImGui::Keybind("Telekinesis Grab Key", &CFG::cfg_Telekinesis_GrabKey);
-									ImGui::QuickTooltip("Hold this key to grab and move the targeted object, Use CTRL+WASD to Rotate grabbed objects.\n"
-										"Need to hold CTRL to rotate it as well as push away and pull back, Q Pushes, E Pulls.");
-									ImGui::CustomSliderFloat("Telekinesis FOV", &CFG::cfg_Telekinesis_FOV, 5.0f, 50.0f);
-									ImGui::QuickTooltip("Field of view for targeting objects (smaller = more precise)");
-									ImGui::CustomSliderFloat("Marker Size", &CFG::cfg_Telekinesis_MarkerSize, 5.0f, 50.0f);
-									char distanceLabel[64];
-									sprintf_s(distanceLabel, "Object Distance (%.1fm)", CFG::cfg_Telekinesis_Distance / 100.0f);
-									if (ImGui::CustomSliderFloat(distanceLabel, &CFG::cfg_Telekinesis_Distance, 100.0f, 20000.0f))
-									{
-										CFG::SaveCFG();
-									}
-									ImGui::QuickTooltip("Distance for how far/close bjects are held from player . Hold CTRL + Q/E to Move away or bring toward to adjust while grabbing.");
-
-									float markerCol[4] = { CFG::cfg_Telekinesis_MarkerColorR, CFG::cfg_Telekinesis_MarkerColorG, CFG::cfg_Telekinesis_MarkerColorB, CFG::cfg_Telekinesis_MarkerColorA };
-									if (ImGui::RGBColorEdit4("Target Marker Color", markerCol))
-									{
-										CFG::cfg_Telekinesis_MarkerColorR = markerCol[0];
-										CFG::cfg_Telekinesis_MarkerColorG = markerCol[1];
-										CFG::cfg_Telekinesis_MarkerColorB = markerCol[2];
-										CFG::cfg_Telekinesis_MarkerColorA = markerCol[3];
-										CFG::SaveCFG();
-									}
-
-									float grabbedCol[4] = { CFG::cfg_Telekinesis_GrabbedColorR, CFG::cfg_Telekinesis_GrabbedColorG, CFG::cfg_Telekinesis_GrabbedColorB, CFG::cfg_Telekinesis_GrabbedColorA };
-									if (ImGui::RGBColorEdit4("Grabbed Object Color", grabbedCol))
-									{
-										CFG::cfg_Telekinesis_GrabbedColorR = grabbedCol[0];
-										CFG::cfg_Telekinesis_GrabbedColorG = grabbedCol[1];
-										CFG::cfg_Telekinesis_GrabbedColorB = grabbedCol[2];
-										CFG::cfg_Telekinesis_GrabbedColorA = grabbedCol[3];
-										CFG::SaveCFG();
-									}
+									CFG::SaveCFG();
 								}
-								ImGui::EndChild();
+								ImGui::QuickTooltip("Distance for how far/close bjects are held from player . Hold CTRL + Q/E to Move away or bring toward to adjust while grabbing.");
+
+								float markerCol[4] = { CFG::cfg_Telekinesis_MarkerColorR, CFG::cfg_Telekinesis_MarkerColorG, CFG::cfg_Telekinesis_MarkerColorB, CFG::cfg_Telekinesis_MarkerColorA };
+								if (ImGui::RGBColorEdit4("Target Marker Color", markerCol))
+								{
+									CFG::cfg_Telekinesis_MarkerColorR = markerCol[0];
+									CFG::cfg_Telekinesis_MarkerColorG = markerCol[1];
+									CFG::cfg_Telekinesis_MarkerColorB = markerCol[2];
+									CFG::cfg_Telekinesis_MarkerColorA = markerCol[3];
+									CFG::SaveCFG();
+								}
+
+								float grabbedCol[4] = { CFG::cfg_Telekinesis_GrabbedColorR, CFG::cfg_Telekinesis_GrabbedColorG, CFG::cfg_Telekinesis_GrabbedColorB, CFG::cfg_Telekinesis_GrabbedColorA };
+								if (ImGui::RGBColorEdit4("Grabbed Object Color", grabbedCol))
+								{
+									CFG::cfg_Telekinesis_GrabbedColorR = grabbedCol[0];
+									CFG::cfg_Telekinesis_GrabbedColorG = grabbedCol[1];
+									CFG::cfg_Telekinesis_GrabbedColorB = grabbedCol[2];
+									CFG::cfg_Telekinesis_GrabbedColorA = grabbedCol[3];
+									CFG::SaveCFG();
+								}
 							}
+							ImGui::EndChild();
 						}
 					}
 					else if (iTabs == 9)
 					{
-						ImGui::BeginChild("Menu", ImVec2(frame_size.x, 532));
+						ImGui::BeginChild("Menu", ImVec2(column_width, child_height));
 						{
 							ImGui::Keybind("Menu Key", &CFG::cfg_ShowMenuKey);
+
+							// UI Scaling
+							static const float scale_values[] = { 1.0f, 1.25f, 1.5f, 1.75f, 2.0f, 2.25f, 2.5f };
+							static const char* scale_labels[] = { "1.00x", "1.25x", "1.50x", "1.75x", "2.00x", "2.25x", "2.50x" };
+							const int num_scales = IM_ARRAYSIZE(scale_values);
+
+							int current_scale_index = 0;
+							for (int i = 0; i < num_scales; ++i)
+							{
+								if (std::abs(CFG::cfg_Menu_DisplayScale - scale_values[i]) < 0.01f)
+								{
+									current_scale_index = i;
+									break;
+								}
+							}
+
+							if (ImGui::CustomCombo("UI Scale", &current_scale_index, scale_labels, num_scales))
+							{
+								CFG::cfg_Menu_DisplayScale = scale_values[current_scale_index];
+								CFG::SaveCFG();
+							}
+							ImGui::QuickTooltip("Adjusts the overall size of the menu UI.\nYou may need to reopen the menu for all changes to apply.");
 
 							// RGB Gradient Toggle
 							ImGui::CustomCheckbox("Enable RGB Gradient Cycling", &CFG::cfg_ESP_GradientCycling);
@@ -1515,33 +1560,33 @@ namespace Menu
 							ImGui::CustomCombo("Menu Language", &CFG::cfg_Language, Language, IM_ARRAYSIZE(Language));
 							ImGui::QuickTooltip("Translations not implemented yet.");
 							ImGui::EndChild();
-							ImGui::SetCursorPos(ImVec2(207 + frame_size.x, 72));
-							ImGui::BeginChild("MusicPlayer", ImVec2(frame_size.x, 532));
-							{
-								Browser::RenderMusicPlayer();
-								ImGui::Separator();
-								ImGui::Text("How To Add Songs?");
-								ImGui::QuickTooltip("Make a Folder named 'Songs' where the Config File is. Put them in that.");
-								ImGui::Text("Where is the Config File?");
-								ImGui::QuickTooltip("-Steam-steamapps-common-The First Descendant-M1-Binaries-Win64");
-								ImGui::Separator();
-								ImGui::CustomCheckbox("Show Enabled Features", &CFG::cfg_Menu_ShowEnabledFeatures);
-								ImGui::QuickTooltip("Show overlay listing all currently enabled features");
-								ImGui::Separator();
-								ImGui::Text("If you turn Tooltips off then ask for help.\n"
-									"Talk to a psychologist for the disability. ");
-								ImGui::CustomCheckbox("Enable Tooltips", &CFG::cfg_Menu_EnableTooltips);
-								ImGui::QuickTooltip("Toggle tooltips on/off for all menu elements");
-								ImGui::Separator();
-								ImGui::EndChild();
-							}
+						}
+						ImGui::SameLine();
+						ImGui::BeginChild("MusicPlayer", ImVec2(column_width, child_height));
+						{
+							Browser::RenderMusicPlayer();
+							ImGui::Separator();
+							ImGui::Text("How To Add Songs?");
+							ImGui::QuickTooltip("Make a Folder named 'Songs' where the Config File is. Put them in that.");
+							ImGui::Text("Where is the Config File?");
+							ImGui::QuickTooltip("-Steam-steamapps-common-The First Descendant-M1-Binaries-Win64");
+							ImGui::Separator();
+							ImGui::CustomCheckbox("Show Enabled Features", &CFG::cfg_Menu_ShowEnabledFeatures);
+							ImGui::QuickTooltip("Show overlay listing all currently enabled features");
+							ImGui::Separator();
+							ImGui::Text("If you turn Tooltips off then ask for help.\n"
+								"Talk to a psychologist for the disability. ");
+							ImGui::CustomCheckbox("Enable Tooltips", &CFG::cfg_Menu_EnableTooltips);
+							ImGui::QuickTooltip("Toggle tooltips on/off for all menu elements");
+							ImGui::Separator();
+							ImGui::EndChild();
 						}
 					}
 				}
-		}
-			ImGui::EndGroup();
+				ImGui::EndGroup();
+			}
 			ImGui::End();
-	}
+		}
 		if (effectsInitialized)
 		{
 			ImGuiIO& io = ImGui::GetIO();
@@ -1562,6 +1607,5 @@ namespace Menu
 		{
 			ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
 		}
+	}
 }
-}
-

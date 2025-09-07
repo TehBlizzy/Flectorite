@@ -30,13 +30,13 @@ bool ImGui::VerticalTab(const char* label, const char* icon, int* v, int number)
 	if (window->SkipItems)
 		return false;
 
+	const float scale = CFG::cfg_Menu_DisplayScale;
 	ImGuiContext& g = *GImGui;
 	const ImGuiStyle& style = g.Style;
 	const ImGuiID id = window->GetID(label);
 
-	const float square_sz = GetFrameHeight();
 	const ImVec2 pos = window->DC.CursorPos;
-	const ImRect total_bb(pos, pos + ImVec2(167, 40));
+	const ImRect total_bb(pos, pos + ImVec2(167 * scale, 40 * scale));
 
 	ItemSize(total_bb, style.FramePadding.y);
 	ItemAdd(total_bb, id);
@@ -88,10 +88,10 @@ bool ImGui::VerticalTab(const char* label, const char* icon, int* v, int number)
 
 	window->DrawList->AddRectFilled(total_bb.Min, total_bb.Max, GetColorU32(State->second.rect_color), style.FrameRounding);
 
-	window->DrawList->AddText(ImVec2(total_bb.Min.x + 45, GetTextCenterPosition(total_bb.Min, total_bb.Max, icon).y), GetColorU32(State->second.text_color), label);
+	window->DrawList->AddText(ImVec2(total_bb.Min.x + 45 * scale, GetTextCenterPosition(total_bb.Min, total_bb.Max, icon).y), GetColorU32(State->second.text_color), label);
 
 	PushFont(icon_big_font);
-	window->DrawList->AddText(ImVec2(total_bb.Min.x + 10, GetTextCenterPosition(total_bb.Min, total_bb.Max, icon).y), GetColorU32(State->second.icon_color), icon);
+	window->DrawList->AddText(ImVec2(total_bb.Min.x + 10 * scale, GetTextCenterPosition(total_bb.Min, total_bb.Max, icon).y), GetColorU32(State->second.icon_color), icon);
 	PopFont();
 
 
@@ -104,15 +104,18 @@ bool ImGui::CustomCheckbox(const char* label, bool* v)
 	if (window->SkipItems)
 		return false;
 
+	const float scale = CFG::cfg_Menu_DisplayScale;
 	ImGuiContext& g = *GImGui;
 	const ImGuiStyle& style = g.Style;
 	const ImGuiID id = window->GetID(label);
 
-	const float square_sz = GetFrameHeight();
-	const ImVec2 pos = window->DC.CursorPos;
-	const ImRect total_bb(pos, pos + frame_size);
+	const float w = ImGui::GetContentRegionAvail().x;
+	const float h = 46.0f * scale;
 
-	const ImRect check_bb(total_bb.Max - ImVec2(45, 32), total_bb.Max - ImVec2(14, 14));
+	const ImVec2 pos = window->DC.CursorPos;
+	const ImRect total_bb(pos, pos + ImVec2(w, h));
+	const ImRect check_bb(total_bb.Max - ImVec2(45 * scale, 32 * scale), total_bb.Max - ImVec2(14 * scale, 14 * scale));
+
 	ItemSize(total_bb, style.FramePadding.y);
 	ItemAdd(total_bb, id);
 
@@ -121,7 +124,7 @@ bool ImGui::CustomCheckbox(const char* label, bool* v)
 	if (State == States.end())
 	{
 		if (*v)
-			States.insert({ id, { 1.0f, 13.0f, GetColorWithAlpha(main_color, 0.3f), main_color, main_color} });
+			States.insert({ id, { 1.0f, 13.0f * scale, GetColorWithAlpha(main_color, 0.3f), main_color, main_color} });
 		else
 			States.insert({ id, { 0.0f, 0.0f, second_color, foreground_color, GetColorWithAlpha(main_color, 0.f) } });
 		State = States.find(id);
@@ -146,7 +149,7 @@ bool ImGui::CustomCheckbox(const char* label, bool* v)
 	State->second.rect_color = ImLerp(State->second.rect_color, *v ? GetColorWithAlpha(main_color, 0.3f) : second_color, State->second.AnimValue);
 	State->second.circle_color = ImLerp(State->second.circle_color, *v ? main_color : foreground_color, State->second.AnimValue);
 	State->second.shadow_color = ImLerp(State->second.shadow_color, *v ? main_color : GetColorWithAlpha(main_color, 0.f), State->second.AnimValue);
-	State->second.circle_offset = ImLerp(State->second.circle_offset, *v ? 13 : 0.f, State->second.AnimValue);
+	State->second.circle_offset = ImLerp(State->second.circle_offset, *v ? 13.f * scale : 0.f, State->second.AnimValue);
 
 	PushStyleVar(ImGuiStyleVar_WindowRounding, style.FrameRounding);
 	//CustomBlur(total_bb.Min, total_bb.Max);
@@ -156,14 +159,14 @@ bool ImGui::CustomCheckbox(const char* label, bool* v)
 
 	window->DrawList->AddRectFilled(check_bb.Min, check_bb.Max, GetColorU32(State->second.rect_color), 360);
 
-	window->DrawList->AddShadowCircle(check_bb.Min + ImVec2(9 + State->second.circle_offset, 8.5f), 5.5f, ImColor(0.f, 0.f, 0.f, 0.3f), 10.f, ImVec2(1, 1), 0, 360);
+	window->DrawList->AddShadowCircle(check_bb.Min + ImVec2(9 * scale + State->second.circle_offset, 8.5f * scale), 5.5f * scale, ImColor(0.f, 0.f, 0.f, 0.3f), 10.f * scale, ImVec2(1, 1), 0, 360);
 
-	window->DrawList->AddCircleFilled(check_bb.Min + ImVec2(9 + State->second.circle_offset, 8.5f), 5.5f, GetColorU32(State->second.circle_color), 360);
+	window->DrawList->AddCircleFilled(check_bb.Min + ImVec2(9 * scale + State->second.circle_offset, 8.5f * scale), 5.5f * scale, GetColorU32(State->second.circle_color), 360);
 
 	//Glow
-	window->DrawList->AddShadowCircle(check_bb.Min + ImVec2(9 + State->second.circle_offset, 8.5f), 3.5f, GetColorU32(State->second.shadow_color), 70.f, ImVec2(0, 0), 0, 360);
+	window->DrawList->AddShadowCircle(check_bb.Min + ImVec2(9 * scale + State->second.circle_offset, 8.5f * scale), 3.5f * scale, GetColorU32(State->second.shadow_color), 70.f * scale, ImVec2(0, 0), 0, 360);
 
-	window->DrawList->AddText(ImVec2(total_bb.Min.x + 12.f, GetTextCenterPosition(total_bb.Min, total_bb.Max, label).y), text_color[0], label);
+	window->DrawList->AddText(ImVec2(total_bb.Min.x + 12.f * scale, GetTextCenterPosition(total_bb.Min, total_bb.Max, label).y), text_color[0], label);
 
 	return pressed;
 }
@@ -184,15 +187,19 @@ bool ImGui::CustomInputText(const char* label, char* buf, size_t buf_size, ImGui
 	if (window->SkipItems)
 		return false;
 
+	const float scale = CFG::cfg_Menu_DisplayScale;
 	ImGuiContext& g = *GImGui;
 	const ImGuiStyle& style = g.Style;
 	const ImGuiID id = window->GetID(label);
 
+	const float w = ImGui::GetContentRegionAvail().x;
+	const float h = 35.0f * scale;
+
 	const ImVec2 label_size = CalcTextSize(label, NULL, true);
-	const ImVec2 item_size = ImVec2(frame_size.x, 35); // Smaller height than default
+	const ImVec2 item_size = ImVec2(w, h); // Smaller height than default
 
 	const ImRect total_bb(window->DC.CursorPos, window->DC.CursorPos + item_size);
-	const ImRect input_bb(total_bb.Min + ImVec2(12, 8), total_bb.Max - ImVec2(14, 8));
+	const ImRect input_bb(total_bb.Min + ImVec2(12 * scale, 8 * scale), total_bb.Max - ImVec2(14 * scale, 8 * scale));
 
 	ItemSize(total_bb, style.FramePadding.y);
 	if (!ItemAdd(total_bb, id, &input_bb))
@@ -213,19 +220,19 @@ bool ImGui::CustomInputText(const char* label, char* buf, size_t buf_size, ImGui
 	}
 
 	// Draw background
-	window->DrawList->AddRectFilled(total_bb.Min, total_bb.Max, background_color, 5);
+	window->DrawList->AddRectFilled(total_bb.Min, total_bb.Max, background_color, 5 * scale);
 
 	// Draw input field background
 	ImU32 input_bg_color = hovered ? GetColorWithAlpha(second_color, 0.8f) : second_color;
-	window->DrawList->AddRectFilled(input_bb.Min, input_bb.Max, input_bg_color, 3);
+	window->DrawList->AddRectFilled(input_bb.Min, input_bb.Max, input_bg_color, 3 * scale);
 
 	// Draw label
-	const ImVec2 label_pos = ImVec2(total_bb.Min.x + 15, total_bb.Min.y + (item_size.y - label_size.y) * 0.5f);
+	const ImVec2 label_pos = ImVec2(total_bb.Min.x + 15 * scale, total_bb.Min.y + (item_size.y - label_size.y) * 0.5f);
 	window->DrawList->AddText(label_pos, text_color[0], label);
 
 	// Calculate input text area (leave space for label)
-	const float label_width = label_size.x + 20;
-	const ImRect text_bb(input_bb.Min + ImVec2(label_width, 0), input_bb.Max - ImVec2(8, 0));
+	const float label_width = label_size.x + 20 * scale;
+	const ImRect text_bb(input_bb.Min + ImVec2(label_width, 0), input_bb.Max - ImVec2(8 * scale, 0));
 
 	// Handle input text
 	bool value_changed = false;
@@ -255,7 +262,7 @@ bool ImGui::CustomInputText(const char* label, char* buf, size_t buf_size, ImGui
 			buf_display = password_display;
 		}
 
-		const ImVec2 text_pos = ImVec2(text_bb.Min.x + 5, text_bb.Min.y + (text_bb.GetHeight() - GetTextLineHeight()) * 0.5f);
+		const ImVec2 text_pos = ImVec2(text_bb.Min.x + 5 * scale, text_bb.Min.y + (text_bb.GetHeight() - GetTextLineHeight()) * 0.5f);
 		window->DrawList->AddText(text_pos, text_color[1], buf_display);
 	}
 
@@ -268,17 +275,16 @@ bool ImGui::CustomSliderScalar(const char* label, ImGuiDataType data_type, void*
 	if (window->SkipItems)
 		return false;
 
+	const float scale = CFG::cfg_Menu_DisplayScale;
 	ImGuiContext& g = *GImGui;
 	const ImGuiStyle& style = g.Style;
 	const ImGuiID id = window->GetID(label);
-	const float w = CalcItemWidth();
+	const float w = ImGui::GetContentRegionAvail().x;
 
-	const ImVec2 item_size = frame_size + ImVec2(0, 15);
-
+	const ImVec2 item_size = ImVec2(w, (46 + 15) * scale);
 	const ImVec2 label_size = CalcTextSize(label, NULL, true);
 	const ImRect total_bb(window->DC.CursorPos, window->DC.CursorPos + item_size);
-
-	const ImRect slider_bb(total_bb.Min + ImVec2(12, 41), total_bb.Max - ImVec2(14, 15));
+	const ImRect slider_bb(total_bb.Min + ImVec2(12 * scale, 41 * scale), total_bb.Max - ImVec2(14 * scale, 15 * scale));
 
 	const bool temp_input_allowed = (flags & ImGuiSliderFlags_NoInput) == 0;
 	ItemSize(total_bb, style.FramePadding.y);
@@ -336,9 +342,7 @@ bool ImGui::CustomSliderScalar(const char* label, ImGuiDataType data_type, void*
 	char value_buf[64];
 	const char* value_buf_end = value_buf + DataTypeFormatString(value_buf, IM_ARRAYSIZE(value_buf), data_type, p_data, format);
 
-	PushFont(small_font);
-	const ImRect input_bb(total_bb.Min + ImVec2(275 - CalcTextSize(value_buf).x, 7), total_bb.Max - ImVec2(14, 28));
-	PopFont();
+	const ImRect input_bb(total_bb.Max - ImVec2(CalcTextSize(value_buf).x + (14 * 2 * scale), 43 * scale), total_bb.Max - ImVec2(14 * scale, 28 * scale));
 
 	it_anim->second.hint_frame_color = ImLerp(it_anim->second.hint_frame_color, hovered && ImGui::IsMouseDown(ImGuiMouseButton_Left) ? GetColorWithAlpha(main_color, 0.3f) : second_color, anim_speed);
 	it_anim->second.hint_color = ImLerp(it_anim->second.hint_color, hovered && ImGui::IsMouseDown(ImGuiMouseButton_Left) ? main_color : text_color[1], anim_speed);
@@ -347,19 +351,19 @@ bool ImGui::CustomSliderScalar(const char* label, ImGuiDataType data_type, void*
 	//CustomBlur(total_bb.Min, total_bb.Max);
 	PopStyleVar();
 
-	window->DrawList->AddRectFilled(total_bb.Min, total_bb.Max, background_color, 5);
+	window->DrawList->AddRectFilled(total_bb.Min, total_bb.Max, background_color, 5 * scale);
 
 	window->DrawList->AddRectFilled(slider_bb.Min, slider_bb.Max, second_color, 360);
 
-	window->DrawList->AddRectFilled(input_bb.Min, input_bb.Max, GetColorU32(it_anim->second.hint_frame_color), 5);
+	window->DrawList->AddRectFilled(input_bb.Min, input_bb.Max, GetColorU32(it_anim->second.hint_frame_color), 5 * scale);
 
 	window->DrawList->AddRectFilled(slider_bb.Min, ImVec2(slider_bb.Min.x + it_anim->second.grab_bb_center_offset.x, slider_bb.Max.y), main_color, 360);
 
-	window->DrawList->AddShadowRect(slider_bb.Min, ImVec2(slider_bb.Min.x + it_anim->second.grab_bb_center_offset.x - 5, slider_bb.Max.y), main_color, 30.f, ImVec2(0, 0), 0, 360);
+	window->DrawList->AddShadowRect(slider_bb.Min, ImVec2(slider_bb.Min.x + it_anim->second.grab_bb_center_offset.x - (5 * scale), slider_bb.Max.y), main_color, 30.f * scale, ImVec2(0, 0), 0, 360);
 
-	window->DrawList->AddCircleFilled(ImVec2(slider_bb.Min.x + it_anim->second.grab_bb_center_offset.x - 5, slider_bb.GetCenter().y), 5.5f, text_color[0]);
+	window->DrawList->AddCircleFilled(ImVec2(slider_bb.Min.x + it_anim->second.grab_bb_center_offset.x - (5 * scale), slider_bb.GetCenter().y), 5.5f * scale, text_color[0]);
 
-	window->DrawList->AddCircleFilled(ImVec2(slider_bb.Min.x + it_anim->second.grab_bb_center_offset.x - 5, slider_bb.GetCenter().y), 3.5f, text_color[2]);
+	window->DrawList->AddCircleFilled(ImVec2(slider_bb.Min.x + it_anim->second.grab_bb_center_offset.x - (5 * scale), slider_bb.GetCenter().y), 3.5f * scale, text_color[2]);
 
 	// Handle mouse wheel for different data types
 	if (hovered && ImGui::GetIO().MouseWheel != 0.0f)
@@ -382,7 +386,7 @@ bool ImGui::CustomSliderScalar(const char* label, ImGuiDataType data_type, void*
 		}
 	}
 
-	window->DrawList->AddText(total_bb.Min + ImVec2(12, 10), text_color[0], label);
+	window->DrawList->AddText(total_bb.Min + ImVec2(12 * scale, 10 * scale), text_color[0], label);
 
 	PushFont(small_font);
 	window->DrawList->AddText(GetTextCenterPosition(input_bb.Min, input_bb.Max, value_buf), GetColorU32(it_anim->second.hint_color), value_buf);
@@ -397,6 +401,7 @@ bool ImGui::CustomColorEdit(const char* label, float col[4], ImGuiColorEditFlags
 	if (window->SkipItems)
 		return false;
 
+	const float scale = CFG::cfg_Menu_DisplayScale;
 	ImGuiContext& g = *GImGui;
 	const ImGuiStyle& style = g.Style;
 	const float square_sz = GetFrameHeight();
@@ -407,10 +412,9 @@ bool ImGui::CustomColorEdit(const char* label, float col[4], ImGuiColorEditFlags
 	g.NextItemData.ClearFlags();
 
 	const ImVec2 pos = window->DC.CursorPos;
+	const ImRect total_bb(pos, pos + ImVec2(w_full, 46.0f * scale - 5.0f * scale));
 
-	const ImRect total_bb(pos, pos + frame_size);
-
-	ItemSize(frame_size - ImVec2(0, 5), style.FramePadding.y);
+	ItemSize(ImVec2(w_full, 46.0f * scale - 5.0f * scale), style.FramePadding.y);
 	ItemAdd(total_bb, GetID(label));
 
 	BeginGroup();
@@ -459,7 +463,7 @@ bool ImGui::CustomColorEdit(const char* label, float col[4], ImGuiColorEditFlags
 
 	const float inputs_offset_x = (style.ColorButtonPosition == ImGuiDir_Left) ? w_button : 0.0f;
 	window->DC.CursorPos.x = pos.x;
-	window->DC.CursorPos.y = pos.y - 10;
+	window->DC.CursorPos.y = pos.y - 10 * scale;
 
 	if ((flags & ImGuiColorEditFlags_DisplayHex) != 0 && (flags & ImGuiColorEditFlags_NoInputs) == 0)
 	{
@@ -471,10 +475,10 @@ bool ImGui::CustomColorEdit(const char* label, float col[4], ImGuiColorEditFlags
 		else
 			ImFormatString(buf, IM_ARRAYSIZE(buf), "#%02X%02X%02X", ImClamp(i[0], 0, 255), ImClamp(i[1], 0, 255), ImClamp(i[2], 0, 255));
 
-		ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(10, 10));
+		ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(10 * scale, 10 * scale));
 		ImGui::BeginGroup();
 		{
-			SetNextItemWidth(w_inputs - 120);
+			SetNextItemWidth(w_inputs - (120 * scale));
 			if (InputText("##Text", buf, IM_ARRAYSIZE(buf), ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_CharsUppercase))
 			{
 				value_changed = true;
@@ -498,7 +502,7 @@ bool ImGui::CustomColorEdit(const char* label, float col[4], ImGuiColorEditFlags
 			PushFont(icon_font);
 
 			ImGui::SameLine();
-			if (ImGui::Button("6", ImVec2(35, 35)))
+			if (ImGui::Button("6", ImVec2(35 * scale, 35 * scale)))
 			{
 				for (int i = 0; i < 4; i++)
 					ColorCopied[i] = col[i];
@@ -506,7 +510,7 @@ bool ImGui::CustomColorEdit(const char* label, float col[4], ImGuiColorEditFlags
 
 			ImGui::SameLine();
 
-			if (ImGui::Button("4", ImVec2(35, 35)))
+			if (ImGui::Button("4", ImVec2(35 * scale, 35 * scale)))
 			{
 				for (int i = 0; i < 4; i++)
 					col[i] = ColorCopied[i];
@@ -514,7 +518,7 @@ bool ImGui::CustomColorEdit(const char* label, float col[4], ImGuiColorEditFlags
 
 			ImGui::SameLine();
 
-			if (ImGui::ToggleButton("3", ImVec2(35, 35), 0, &picker))
+			if (ImGui::ToggleButton("3", ImVec2(35 * scale, 35 * scale), 0, &picker))
 			{
 				picker = !picker;
 			}
@@ -536,10 +540,10 @@ bool ImGui::CustomColorEdit(const char* label, float col[4], ImGuiColorEditFlags
 				color = GetPixel(dc, p.x, p.y);
 				ReleaseDC(NULL, dc);
 
-				ImVec2 picker_rect_start = ImGui::GetMousePos() - ImVec2(20, 20);
+				ImVec2 picker_rect_start = ImGui::GetMousePos() - ImVec2(20 * scale, 20 * scale);
 
-				GetForegroundDrawList()->AddCircleFilled(picker_rect_start, 15.f, ImColor((float)GetRValue(color) / 255.f, (float)GetGValue(color) / 255.f, (float)GetBValue(color) / 255.f, 1.f));
-				GetForegroundDrawList()->AddCircle(picker_rect_start, 15.f, stroke_color);
+				GetForegroundDrawList()->AddCircleFilled(picker_rect_start, 15.f * scale, ImColor((float)GetRValue(color) / 255.f, (float)GetGValue(color) / 255.f, (float)GetBValue(color) / 255.f, 1.f));
+				GetForegroundDrawList()->AddCircle(picker_rect_start, 15.f * scale, stroke_color);
 
 				if (IsMouseReleased(ImGuiMouseButton_Left) && !IsItemHovered()) {
 					col[0] = (float)GetRValue(color) / 255.f;
@@ -578,7 +582,7 @@ bool ImGui::CustomColorEdit(const char* label, float col[4], ImGuiColorEditFlags
 			window->DrawList->AddRectFilled(total_bb.Min, total_bb.Max, background_color, style.FrameRounding);
 		}
 
-		ImGui::SetCursorScreenPos(total_bb.Max - ImVec2(50, 44.0f));
+		ImGui::SetCursorScreenPos(total_bb.Max - ImVec2(50 * scale, 44.0f * scale));
 
 		if (ColorButton("##ColorButton", col_v4, flags))
 		{
@@ -596,12 +600,12 @@ bool ImGui::CustomColorEdit(const char* label, float col[4], ImGuiColorEditFlags
 
 		PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 		PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
-		PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 10));
+		PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10 * scale, 10 * scale));
 		PushStyleColor(ImGuiCol_PopupBg, ImColorToImVec4(child_color));
 		PushStyleColor(ImGuiCol_Border, ImColorToImVec4(child_color));
 		if (it_anim->second.picker_active)
 		{
-			ImGui::SetNextWindowSize(ImVec2(310, 260));
+			ImGui::SetNextWindowSize(ImVec2(310 * scale, 260 * scale));
 			ImGui::Begin("picker_edit", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysUseWindowPadding);
 			{
 				ImRect picker_bb(GetWindowPos(), GetWindowPos() + ImGui::GetWindowSize());
@@ -612,7 +616,7 @@ bool ImGui::CustomColorEdit(const char* label, float col[4], ImGuiColorEditFlags
 				picker_active_window = g.CurrentWindow;
 				ImGuiColorEditFlags picker_flags_to_forward = ImGuiColorEditFlags_DataTypeMask_ | ImGuiColorEditFlags_PickerMask_ | ImGuiColorEditFlags_InputMask_ | ImGuiColorEditFlags_HDR | ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_AlphaBar;
 				ImGuiColorEditFlags picker_flags = (flags_untouched & picker_flags_to_forward) | ImGuiColorEditFlags_DisplayMask_ | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaPreviewHalf;
-				SetNextItemWidth(square_sz * 16.0f); // Use 256 + bar sizes?
+				SetNextItemWidth(square_sz * 16.0f * scale); // Use 256 + bar sizes?
 				value_changed |= CustomColorPicker("##picker", col, picker_flags);
 			}
 			End();
@@ -631,7 +635,7 @@ bool ImGui::CustomColorEdit(const char* label, float col[4], ImGuiColorEditFlags
 		window->DC.CursorPos.x = pos.x + ((flags & ImGuiColorEditFlags_NoInputs) ? w_button : w_full + style.ItemInnerSpacing.x);
 
 		if (render_frame)
-			window->DrawList->AddText(ImVec2(total_bb.Min.x + 12.f, GetTextCenterPosition(total_bb.Min, total_bb.Max, label).y), text_color[0], label);
+			window->DrawList->AddText(ImVec2(total_bb.Min.x + 12.f * scale, GetTextCenterPosition(total_bb.Min, total_bb.Max, label).y), text_color[0], label);
 	}
 
 	// Convert back
@@ -679,12 +683,13 @@ bool ImGui::CustomColorPicker(const char* label, float col[4], ImGuiColorEditFla
 	if (window->SkipItems)
 		return false;
 
+	const float scale = CFG::cfg_Menu_DisplayScale;
 	ImDrawList* draw_list = GetWindowDrawList();
 	ImGuiStyle& style = g.Style;
 	ImGuiIO& io = g.IO;
 
 
-	const ImVec2 color_frame_size(280, 160);
+	const ImVec2 color_frame_size(280 * scale, 160 * scale);
 	const float width = CalcItemWidth();
 	g.NextItemData.ClearFlags();
 
@@ -720,9 +725,9 @@ bool ImGui::CustomColorPicker(const char* label, float col[4], ImGuiColorEditFla
 	// Setup
 	int components = (flags & ImGuiColorEditFlags_NoAlpha) ? 3 : 4;
 	bool alpha_bar = (flags & ImGuiColorEditFlags_AlphaBar) && !(flags & ImGuiColorEditFlags_NoAlpha);
-	ImVec2 picker_pos = window->DC.CursorPos + ImVec2(15, 15);
+	ImVec2 picker_pos = window->DC.CursorPos + ImVec2(15 * scale, 15 * scale);
 	float square_sz = GetFrameHeight();
-	float bars_width = 10; // Arbitrary smallish width of Hue/Alpha picking bars
+	float bars_width = 10 * scale; // Arbitrary smallish width of Hue/Alpha picking bars
 	float sv_picker_size = ImMax(bars_width * 1, width - (alpha_bar ? 2 : 1) * (bars_width + style.ItemInnerSpacing.x)) / 2.5f; // Saturation/Value picking box
 	float bar0_pos_x = picker_pos.x + sv_picker_size + style.ItemInnerSpacing.x;
 	float bar1_pos_x = bar0_pos_x + bars_width + style.ItemInnerSpacing.x;
@@ -797,8 +802,8 @@ bool ImGui::CustomColorPicker(const char* label, float col[4], ImGuiColorEditFla
 	{
 
 		//CustomBlur(ImGui::GetWindowPos(), ImGui::GetWindowPos() + ImGui::GetWindowSize());
-		GetWindowDrawList()->AddRectFilled(ImGui::GetWindowPos(), ImGui::GetWindowPos() + ImGui::GetWindowSize(), GetColorWithAlpha(background_color, 0.4f), 10.f);
-		GetWindowDrawList()->AddRect(ImGui::GetWindowPos(), ImGui::GetWindowPos() + ImGui::GetWindowSize(), stroke_color, 10.f);
+		GetWindowDrawList()->AddRectFilled(ImGui::GetWindowPos(), ImGui::GetWindowPos() + ImGui::GetWindowSize(), GetColorWithAlpha(background_color, 0.4f), 10.f * scale);
+		GetWindowDrawList()->AddRect(ImGui::GetWindowPos(), ImGui::GetWindowPos() + ImGui::GetWindowSize(), stroke_color, 10.f * scale);
 
 		// SV rectangle logic
 		InvisibleButton("sv", color_frame_size);
@@ -816,8 +821,8 @@ bool ImGui::CustomColorPicker(const char* label, float col[4], ImGuiColorEditFla
 			OpenPopupOnItemClick("context", ImGuiPopupFlags_MouseButtonRight);
 
 		// Hue bar logic
-		SetCursorScreenPos(ImVec2(picker_pos.x, picker_pos.y + color_frame_size.y + 10));
-		InvisibleButton("hue", ImVec2(picker_pos.x + color_frame_size.x, 10));
+		SetCursorScreenPos(ImVec2(picker_pos.x, picker_pos.y + color_frame_size.y + 10 * scale));
+		InvisibleButton("hue", ImVec2(picker_pos.x + color_frame_size.x, 10 * scale));
 		if (IsItemActive())
 		{
 			H = ImSaturate((io.MousePos.x - picker_pos.x) / (color_frame_size.x - 1));
@@ -969,8 +974,8 @@ bool ImGui::CustomColorPicker(const char* label, float col[4], ImGuiColorEditFla
 		it_anim->second.sv_cursor_pos.y = ImLerp(it_anim->second.sv_cursor_pos.y, picker_pos.y - ImClamp(IM_ROUND(picker_pos.y + ImSaturate(1 - V) * color_frame_size.y), picker_pos.y + 2, picker_pos.y + color_frame_size.y - 2), g.IO.DeltaTime * 30.f);
 
 		for (int i = 0; i < 6; ++i) {
-			draw_list->AddRectFilledMultiColor(ImVec2(picker_pos.x + i * (color_frame_size.x / 6), picker_pos.y + color_frame_size.y + 10),
-				ImVec2(picker_pos.x + (i + 1) * (color_frame_size.x / 5.95), picker_pos.y + color_frame_size.y + 20),
+			draw_list->AddRectFilledMultiColor(ImVec2(picker_pos.x + i * (color_frame_size.x / 6), picker_pos.y + color_frame_size.y + 10 * scale),
+				ImVec2(picker_pos.x + (i + 1) * (color_frame_size.x / 5.95), picker_pos.y + color_frame_size.y + 20 * scale),
 				col_hues[i],
 				col_hues[i + 1],
 				col_hues[i + 1],
@@ -979,19 +984,19 @@ bool ImGui::CustomColorPicker(const char* label, float col[4], ImGuiColorEditFla
 
 		picker_offset += ImGui::GetIO().MouseWheel;
 
-		it_anim->second.bar0_line_y = ImLerp(it_anim->second.bar0_line_y, picker_pos.x - IM_ROUND((picker_pos.x + 5.f) + H * (color_frame_size.x - 12.f)), anim_speed);
-		it_anim->second.sv_cursor_rad = ImLerp(it_anim->second.sv_cursor_rad, value_changed_sv ? 8.0f : 5.0f, io.DeltaTime * 6.f);
+		it_anim->second.bar0_line_y = ImLerp(it_anim->second.bar0_line_y, picker_pos.x - IM_ROUND((picker_pos.x + 5.f * scale) + H * (color_frame_size.x - 12.f * scale)), anim_speed);
+		it_anim->second.sv_cursor_rad = ImLerp(it_anim->second.sv_cursor_rad, value_changed_sv ? 8.0f * scale : 5.0f * scale, io.DeltaTime * 6.f);
 		draw_list->AddCircleFilled(it_anim->second.sv_cursor_pos, it_anim->second.sv_cursor_rad, user_col32_striped_of_alpha, 60);
 		draw_list->AddCircle(picker_pos - it_anim->second.sv_cursor_pos, it_anim->second.sv_cursor_rad + 1, col_midgrey, 60);
 		draw_list->AddCircle(picker_pos - it_anim->second.sv_cursor_pos, it_anim->second.sv_cursor_rad, col_white, 60);
 
-		draw_list->AddCircle(ImVec2(picker_pos.x - it_anim->second.bar0_line_y, picker_pos.y + color_frame_size.y + 15), 4, col_midgrey, 60);
-		draw_list->AddCircle(ImVec2(picker_pos.x - it_anim->second.bar0_line_y, picker_pos.y + color_frame_size.y + 15), 3, col_white, 60);
+		draw_list->AddCircle(ImVec2(picker_pos.x - it_anim->second.bar0_line_y, picker_pos.y + color_frame_size.y + 15 * scale), 4 * scale, col_midgrey, 60);
+		draw_list->AddCircle(ImVec2(picker_pos.x - it_anim->second.bar0_line_y, picker_pos.y + color_frame_size.y + 15 * scale), 3 * scale, col_white, 60);
 
 	}
 
 	// Render cursor/preview circle (clamp S/V within 0..1 range because floating points colors may lead HSV values to be out of range)
-	it_anim->second.sv_cursor_rad = ImLerp(it_anim->second.sv_cursor_rad, value_changed_sv ? 6.0f : 3.0f, anim_speed * 2);
+	it_anim->second.sv_cursor_rad = ImLerp(it_anim->second.sv_cursor_rad, value_changed_sv ? 6.0f * scale : 3.0f * scale, anim_speed * 2);
 	draw_list->AddCircleFilled(it_anim->second.sv_cursor_pos, it_anim->second.sv_cursor_rad, user_col32_striped_of_alpha, 12);
 	draw_list->AddCircle(it_anim->second.sv_cursor_pos, it_anim->second.sv_cursor_rad + 1, col_midgrey, 12);
 	draw_list->AddCircle(it_anim->second.sv_cursor_pos, it_anim->second.sv_cursor_rad, col_white, 12);
@@ -1001,12 +1006,12 @@ bool ImGui::CustomColorPicker(const char* label, float col[4], ImGuiColorEditFla
 	{
 		float alpha = ImSaturate(col[3]);
 		ImRect bar1_bb(bar1_pos_x, picker_pos.y, bar1_pos_x + bars_width, picker_pos.y + sv_picker_size);
-		RenderColorRectWithAlphaCheckerboard(draw_list, bar1_bb.Min, bar1_bb.Max, 0, bar1_bb.GetWidth() / 2.0f, ImVec2(0.0f, 0.0f), 10.f, ImDrawFlags_RoundCornersAll);
+		RenderColorRectWithAlphaCheckerboard(draw_list, bar1_bb.Min, bar1_bb.Max, 0, bar1_bb.GetWidth() / 2.0f, ImVec2(0.0f, 0.0f), 10.f * scale, ImDrawFlags_RoundCornersAll);
 		draw_list->AddRectFilledMultiColor(bar1_bb.Min, bar1_bb.Max, user_col32_striped_of_alpha, user_col32_striped_of_alpha, user_col32_striped_of_alpha & ~IM_COL32_A_MASK, user_col32_striped_of_alpha & ~IM_COL32_A_MASK);// , 10.f, ImDrawFlags_RoundCornersAll);
 		it_anim->second.bar1_line_y = ImLerp(it_anim->second.bar1_line_y, IM_ROUND(picker_pos.y + (1.0f - alpha) * sv_picker_size), anim_speed * 2);
 
-		draw_list->AddRect(ImVec2(bar1_pos_x - 2, it_anim->second.bar1_line_y - 4), ImVec2(bar1_pos_x - 1 + bars_width + 3.0f, it_anim->second.bar1_line_y + 4), col_midgrey, 30.f);
-		draw_list->AddRect(ImVec2(bar1_pos_x - 1, it_anim->second.bar1_line_y - 3), ImVec2(bar1_pos_x - 1 + bars_width + 2.0f, it_anim->second.bar1_line_y + 3), col_white, 30.f);
+		draw_list->AddRect(ImVec2(bar1_pos_x - 2 * scale, it_anim->second.bar1_line_y - 4 * scale), ImVec2(bar1_pos_x - 1 * scale + bars_width + 3.0f * scale, it_anim->second.bar1_line_y + 4 * scale), col_midgrey, 30.f * scale);
+		draw_list->AddRect(ImVec2(bar1_pos_x - 1 * scale, it_anim->second.bar1_line_y - 3 * scale), ImVec2(bar1_pos_x - 1 * scale + bars_width + 2.0f * scale, it_anim->second.bar1_line_y + 3 * scale), col_white, 30.f * scale);
 	}
 
 	EndGroup();
@@ -1028,6 +1033,7 @@ bool ImGui::ToggleButton(const char* label, const ImVec2& size_arg, ImGuiButtonF
 	if (window->SkipItems)
 		return false;
 
+	const float scale = CFG::cfg_Menu_DisplayScale;
 	ImGuiContext& g = *GImGui;
 	const ImGuiStyle& style = g.Style;
 	const ImGuiID id = window->GetID(label);
@@ -1175,8 +1181,11 @@ bool ImGui::BeginCustomCombo(const char* label, const char* preview_value, ImGui
 	if (window->SkipItems)
 		return false;
 
+	const float scale = CFG::cfg_Menu_DisplayScale;
 	const ImGuiStyle& style = g.Style;
 	const ImGuiID id = window->GetID(label);
+	const float w = ImGui::GetContentRegionAvail().x;
+	const float h = 46.0f * scale;
 
 	static std::map<ImGuiID, combo_state> anim;
 	auto it_anim = anim.find(id);
@@ -1190,18 +1199,18 @@ bool ImGui::BeginCustomCombo(const char* label, const char* preview_value, ImGui
 	ImVec2 pos = window->DC.CursorPos;
 
 	PushFont(small_font);
-	it_anim->second.preview_value_size = ImLerp(it_anim->second.preview_value_size, CalcTextSize(preview_value).x > 100.f ? CalcTextSize(preview_value).x : it_anim->second.opened_combo ? 100.f : CalcTextSize(preview_value).x, anim_speed);
+	it_anim->second.preview_value_size = ImLerp(it_anim->second.preview_value_size, CalcTextSize(preview_value).x > 100.f * scale ? CalcTextSize(preview_value).x : it_anim->second.opened_combo ? 100.f * scale : CalcTextSize(preview_value).x, anim_speed);
 	PopFont();
 
-	const ImRect total_bb(pos, pos + frame_size);
-	const ImRect rect_bb(total_bb.Min + ImVec2(249 - it_anim->second.preview_value_size, 11), total_bb.Max - ImVec2(14, 11));
+	const ImRect total_bb(pos, pos + ImVec2(w, h));
+	const ImRect rect_bb(total_bb.Min + ImVec2(w - it_anim->second.preview_value_size - 40 * scale, 11 * scale), total_bb.Max - ImVec2(14 * scale, 11 * scale));
 	ItemSize(total_bb, style.FramePadding.y);
 	ItemAdd(total_bb, id);
 
 	bool hovered, held;
 	bool pressed = ButtonBehavior(total_bb, id, &hovered, &held);
 
-	it_anim->second.combo_size = ImLerp(it_anim->second.combo_size, it_anim->second.opened_combo ? value * 30.f : 0.f, anim_speed * 3);
+	it_anim->second.combo_size = ImLerp(it_anim->second.combo_size, it_anim->second.opened_combo ? value * 30.f * scale : 0.f, anim_speed * 3);
 	it_anim->second.combo_rotate = ImLerp(it_anim->second.combo_rotate, it_anim->second.opened_combo ? IM_PI / 2 : IM_PI / 1.5f, anim_speed);
 	//it_anim->second.text_color = ImLerp(it_anim->second.text_color, it_anim->second.opened_combo ? text_color[0] : hovered ? text_color[1] : text_color[2], anim_speed);
 	it_anim->second.preview_text_color = ImLerp(it_anim->second.preview_text_color, it_anim->second.opened_combo ? main_color : text_color[0], anim_speed);
@@ -1218,20 +1227,20 @@ bool ImGui::BeginCustomCombo(const char* label, const char* preview_value, ImGui
 
 	window->DrawList->AddRectFilled(rect_bb.Min, rect_bb.Max, GetColorU32(it_anim->second.frame_color), style.FrameRounding);
 
-	window->DrawList->AddRectFilled(rect_bb.Max - ImVec2(25, 20), rect_bb.Max - ImVec2(4, 4), background_color, style.FrameRounding);
+	window->DrawList->AddRectFilled(rect_bb.Max - ImVec2(25 * scale, 20 * scale), rect_bb.Max - ImVec2(4 * scale, 4 * scale), background_color, style.FrameRounding);
 
 	PushFont(icon_font);
-	window->DrawList->AddText(GetTextCenterPosition(rect_bb.Max - ImVec2(25, 20), rect_bb.Max - ImVec2(4, 4), "7"), GetColorU32(it_anim->second.arrow_color), "7");
+	window->DrawList->AddText(GetTextCenterPosition(rect_bb.Max - ImVec2(25 * scale, 20 * scale), rect_bb.Max - ImVec2(4 * scale, 4 * scale), "7"), GetColorU32(it_anim->second.arrow_color), "7");
 	PopFont();
 
-	window->DrawList->AddText(total_bb.Min + ImVec2(12, 12), text_color[0], label);
+	window->DrawList->AddText(total_bb.Min + ImVec2(12 * scale, 12 * scale), text_color[0], label);
 
 	ImVec2 label_size = CalcTextSize(label);
 
 	const int vtx_idx_1 = window->DrawList->VtxBuffer.Size;
 
 	PushFont(small_font);
-	window->DrawList->AddText(ImVec2(rect_bb.Min.x + 9.5f, GetTextCenterPosition(rect_bb.Min, rect_bb.Max, preview_value).y), GetColorU32(it_anim->second.preview_text_color), preview_value);
+	window->DrawList->AddText(ImVec2(rect_bb.Min.x + 9.5f * scale, GetTextCenterPosition(rect_bb.Min, rect_bb.Max, preview_value).y), GetColorU32(it_anim->second.preview_text_color), preview_value);
 	PopFont();
 
 	const int vtx_idx_2 = window->DrawList->VtxBuffer.Size;
@@ -1245,13 +1254,13 @@ bool ImGui::BeginCustomCombo(const char* label, const char* preview_value, ImGui
 	ImGui::SetNextWindowPos(ImVec2(rect_bb.Min.x, rect_bb.Max.y));
 
 	ImGui::SetNextWindowSize(ImVec2(rect_bb.GetWidth(), it_anim->second.combo_size));
-	PushStyleVar(ImGuiStyleVar_WindowRounding, 5.f);
+	PushStyleVar(ImGuiStyleVar_WindowRounding, 5.f * scale);
 	PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 	PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 	ImGuiWindowFlags window_flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoBackground;
 	bool ret = Begin(label, NULL, window_flags);
 
-	GetWindowDrawList()->AddRectFilled(GetWindowPos(), GetWindowPos() + GetWindowSize(), background_color, 10.f);
+	GetWindowDrawList()->AddRectFilled(GetWindowPos(), GetWindowPos() + GetWindowSize(), background_color, 10.f * scale);
 	//CustomBlur(GetWindowPos(), GetWindowPos() + GetWindowSize());
 
 	it_anim->second.hovered = IsWindowHovered();
@@ -1281,6 +1290,7 @@ bool ImGui::CustomSelectable(const char* label, bool selected, ImGuiSelectableFl
 	if (window->SkipItems)
 		return false;
 
+	const float scale = CFG::cfg_Menu_DisplayScale;
 	ImGuiContext& g = *GImGui;
 	const ImGuiStyle& style = g.Style;
 
@@ -1290,7 +1300,7 @@ bool ImGui::CustomSelectable(const char* label, bool selected, ImGuiSelectableFl
 	ImVec2 size(size_arg.x != 0.0f ? size_arg.x : label_size.x, size_arg.y != 0.0f ? size_arg.y : label_size.y);
 	ImVec2 pos = window->DC.CursorPos;
 	pos.y += window->DC.CurrLineTextBaseOffset;
-	ItemSize(ImVec2(ImGui::GetWindowSize().x, 30), 0.0f);
+	ItemSize(ImVec2(ImGui::GetWindowSize().x, 30 * scale), 0.0f);
 
 	// Fill horizontal space
 	// We don't support (size < 0.0f) in Selectable() because the ItemSpacing extension would make explicitly right-aligned sizes not visibly match other widgets.
@@ -1305,7 +1315,7 @@ bool ImGui::CustomSelectable(const char* label, bool selected, ImGuiSelectableFl
 	const ImVec2 text_max(min_x + size.x, pos.y + size.y);
 
 	// Selectables are meant to be tightly packed together with no click-gap, so we extend their box to cover spacing between selectable.
-	ImRect bb(ImVec2(window->Pos.x, pos.y), ImVec2(window->Pos.x, pos.y) + ImVec2(ImGui::GetWindowSize().x, 30));
+	ImRect bb(ImVec2(window->Pos.x, pos.y), ImVec2(window->Pos.x, pos.y) + ImVec2(ImGui::GetWindowSize().x, 30 * scale));
 	//if (g.IO.KeyCtrl) { GetForegroundDrawList()->AddRect(bb.Min, bb.Max, IM_COL32(0, 255, 0, 255)); }
 
 	// Modify ClipRect for the ItemAdd(), faster than doing a PushColumnsBackground/PushTableBackground for every Selectable..
@@ -1403,16 +1413,16 @@ bool ImGui::CustomSelectable(const char* label, bool selected, ImGuiSelectableFl
 	it_anim->second.rect_color = ImLerp(it_anim->second.rect_color, selected ? main_color : foreground_color, anim_speed);
 	it_anim->second.checkmark_color = ImLerp(it_anim->second.checkmark_color, selected ? background_color : GetColorWithAlpha(foreground_color, 0.f), anim_speed);
 
-	const ImRect check_bb(ImVec2(bb.Min.x + 10, bb.GetCenter().y - 7.5f), ImVec2(bb.Min.x + 25, bb.GetCenter().y + 7.5f));
+	const ImRect check_bb(ImVec2(bb.Min.x + 10 * scale, bb.GetCenter().y - 7.5f * scale), ImVec2(bb.Min.x + 25 * scale, bb.GetCenter().y + 7.5f * scale));
 
-	window->DrawList->AddRectFilled(check_bb.Min, check_bb.Max, GetColorU32(it_anim->second.rect_color), 2.5f);
+	window->DrawList->AddRectFilled(check_bb.Min, check_bb.Max, GetColorU32(it_anim->second.rect_color), 2.5f * scale);
 
-	RenderCheckMark(window->DrawList, check_bb.GetCenter() - ImVec2(4.5f, 4.5f), GetColorU32(it_anim->second.checkmark_color), 9.f);
+	RenderCheckMark(window->DrawList, check_bb.GetCenter() - ImVec2(4.5f * scale, 4.5f * scale), GetColorU32(it_anim->second.checkmark_color), 9.f * scale);
 
 
 
 	PushFont(small_font);
-	window->DrawList->AddText(ImVec2(bb.Min.x + 35.f, GetTextCenterPosition(bb.Min, bb.Max, label).y), GetColorU32(it_anim->second.text_color), label);
+	window->DrawList->AddText(ImVec2(bb.Min.x + 35.f * scale, GetTextCenterPosition(bb.Min, bb.Max, label).y), GetColorU32(it_anim->second.text_color), label);
 	PopFont();
 
 
@@ -1429,56 +1439,54 @@ bool ImGui::CustomSelectable(const char* label, bool selected, ImGuiSelectableFl
 
 bool ImGui::KeybindWithToggle(const char* label, bool* v, int* key)
 {
+	const float scale = CFG::cfg_Menu_DisplayScale;
+	ImGuiStyle& style = ImGui::GetStyle();
 	std::string picker_name = "##keybind" + std::string(label);
 
-	frame_size = ImVec2(235, 46);
+	const float total_w = ImGui::GetContentRegionAvail().x;
+	const float keybind_w = 60 * scale;
+	const float checkbox_w = total_w - keybind_w - style.ItemSpacing.x;
 
+	PushItemWidth(checkbox_w);
 	bool Ret = ImGui::CustomCheckbox(label, v);
+	PopItemWidth();
 
-	ImGui::SameLine();
+	SameLine(0, style.ItemSpacing.x);
 
-	frame_size = ImVec2(60, 46);
-
+	PushItemWidth(keybind_w);
 	ImGui::KeybindBox(picker_name.c_str(), key);
-
-	frame_size = ImVec2(305, 46);
+	PopItemWidth();
 
 	return Ret;
 }
 
 void ImGui::Keybind(const char* label, int* key)
 {
+	const float scale = CFG::cfg_Menu_DisplayScale;
+	ImGuiStyle& style = ImGui::GetStyle();
 	std::string picker_name = "##keybind" + std::string(label);
 
-	frame_size = ImVec2(235, 46);
+	const float total_w = ImGui::GetContentRegionAvail().x;
+	const float keybind_w = 60 * scale;
+	const float label_w = total_w - keybind_w - style.ItemSpacing.x;
 
 	ImGuiWindow* window = GetCurrentWindow();
 	if (window->SkipItems)
 		return;
 
-	ImGuiContext& g = *GImGui;
-	const ImGuiStyle& style = g.Style;
-	const ImGuiID id = window->GetID(label);
-
-	const float square_sz = GetFrameHeight();
 	const ImVec2 pos = window->DC.CursorPos;
-	const ImRect total_bb(pos, pos + frame_size);
-
-	const ImRect check_bb(total_bb.Max - ImVec2(45, 32), total_bb.Max - ImVec2(14, 14));
+	const ImRect total_bb(pos, pos + ImVec2(label_w, 46 * scale));
 	ItemSize(total_bb, style.FramePadding.y);
-	ItemAdd(total_bb, id);
+	ItemAdd(total_bb, window->GetID(label));
 
 	window->DrawList->AddRectFilled(total_bb.Min, total_bb.Max, background_color, style.FrameRounding);
-	window->DrawList->AddText(ImVec2(total_bb.Min.x + 12.f, GetTextCenterPosition(total_bb.Min, total_bb.Max, label).y), text_color[0], label);
-	//bool Ret = ImGui::CustomCheckbox(label, v);
+	window->DrawList->AddText(ImVec2(total_bb.Min.x + 12.f * scale, GetTextCenterPosition(total_bb.Min, total_bb.Max, label).y), text_color[0], label);
 
-	ImGui::SameLine();
+	ImGui::SameLine(0, style.ItemSpacing.x);
 
-	frame_size = ImVec2(60, 46);
-
+	PushItemWidth(keybind_w);
 	ImGui::KeybindBox(picker_name.c_str(), key);
-
-	frame_size = ImVec2(305, 46);
+	PopItemWidth();
 }
 
 struct keybind_state {
@@ -1495,23 +1503,20 @@ bool ImGui::KeybindBox(const char* label, int* key)
 	if (window->SkipItems)
 		return false;
 
+	const float scale = CFG::cfg_Menu_DisplayScale;
 	ImGuiContext& g = *GImGui;
 	const ImGuiStyle& style = g.Style;
 	const ImGuiID id = window->GetID(label);
 	const ImVec2 label_size = CalcTextSize(label, NULL, true);
 
-	const float square_sz = GetFrameHeight();
+	const float w = ImGui::GetContentRegionAvail().x;
+	const float h = 46.0f * scale;
+
 	const ImVec2 pos = window->DC.CursorPos;
-	const ImRect total_bb(pos, pos + frame_size);
+	const ImRect total_bb(pos, pos + ImVec2(w, h));
 
-	ImRect button_bb(total_bb.Min + ImVec2(10, 20), total_bb.Max - ImVec2(10, 20));
-
-	std::string label_str = label;
-	if (label_str.find("##keybind") != std::string::npos)
-		button_bb = ImRect(total_bb.Min, total_bb.Max);
-
-	ItemSize(button_bb, style.FramePadding.y);
-	ItemAdd(button_bb, id);
+	ItemSize(total_bb, style.FramePadding.y);
+	ItemAdd(total_bb, id);
 
 	static std::map<ImGuiID, keybind_state> anim;
 	auto it_anim = anim.find(id);
@@ -1523,7 +1528,7 @@ bool ImGui::KeybindBox(const char* label, int* key)
 	}
 
 	bool hovered, held;
-	bool pressed = ButtonBehavior(button_bb, id, &hovered, &held);
+	bool pressed = ButtonBehavior(total_bb, id, &hovered, &held);
 
 	it_anim->second.text_color = ImLerp(it_anim->second.text_color, it_anim->second.mode ? text_color[0] : text_color[1], anim_speed);
 	it_anim->second.key_color = ImLerp(it_anim->second.key_color, it_anim->second.mode ? main_color : text_color[1], anim_speed);
@@ -1573,11 +1578,6 @@ bool ImGui::KeybindBox(const char* label, int* key)
 	PopStyleVar();
 
 	window->DrawList->AddRectFilled(total_bb.Min, total_bb.Max, background_color, style.FrameRounding);
-
-	PushFont(small_font);
-	if (label_str.find("##keybind") == std::string::npos)
-		window->DrawList->AddText(ImVec2(total_bb.Min.x + 20, GetTextCenterPosition(total_bb.Min, total_bb.Max, label).y), GetColorU32(it_anim->second.text_color), label);
-	PopFont();
 
 	if (*key > 0 && !it_anim->second.mode)
 	{
@@ -1648,27 +1648,22 @@ bool ImGui::CustomButton(const char* label, const ImVec2& size_arg, ImGuiButtonF
 	if (window->SkipItems)
 		return false;
 
+	const float scale = CFG::cfg_Menu_DisplayScale;
 	ImGuiContext& g = *GImGui;
 	const ImGuiStyle& style = g.Style;
 	const ImGuiID id = window->GetID(label);
 
-	const float square_sz = GetFrameHeight();
-	const ImVec2 pos = window->DC.CursorPos;
-	const ImRect total_bb(pos, pos + frame_size);
-
-	ItemSize(total_bb, style.FramePadding.y);
-	ItemAdd(total_bb, id);
 	const ImVec2 label_size = CalcTextSize(label, NULL, true);
 
-	//ImVec2 pos = window->DC.CursorPos;
-	//if ((flags & ImGuiButtonFlags_AlignTextBaseLine) && style.FramePadding.y < window->DC.CurrLineTextBaseOffset) // Try to vertically align buttons that are smaller/have no padding so that text baseline matches (bit hacky, since it shouldn't be a flag)
-	//    pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
-	ImVec2 size = CalcItemSize(size_arg, label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
+	const float w = (size_arg.x != 0.0f) ? size_arg.x : ImGui::GetContentRegionAvail().x;
+	const float h = (size_arg.y != 0.0f) ? size_arg.y : 46.0f * scale;
 
-	//const ImRect bb(pos, pos + size);
-	//ItemSize(size, style.FramePadding.y);
-	//if (!ItemAdd(total_bb, id))
-	//    return false;
+	const ImVec2 pos = window->DC.CursorPos;
+	const ImRect total_bb(pos, pos + ImVec2(w, h));
+
+	ItemSize(total_bb, style.FramePadding.y);
+	if (!ItemAdd(total_bb, id))
+		return false;
 
 	bool hovered, held;
 	bool pressed = ButtonBehavior(total_bb, id, &hovered, &held, flags);
@@ -1676,7 +1671,7 @@ bool ImGui::CustomButton(const char* label, const ImVec2& size_arg, ImGuiButtonF
 
 	if (hovered)
 	{
-		window->DrawList->AddShadowRect(total_bb.Min, total_bb.Max, main_color, 10.f, ImVec2(0, 0), 0, 360);
+		window->DrawList->AddShadowRect(total_bb.Min, total_bb.Max, main_color, 10.f * scale, ImVec2(0, 0), 0, 360);
 		window->DrawList->AddRectFilled(total_bb.Min, total_bb.Max, GetColorWithAlpha(background_color, 1.0), style.FrameRounding);
 		window->DrawList->AddText(ImVec2(TextPos.x, TextPos.y), main_color, label);
 	}
@@ -1685,19 +1680,6 @@ bool ImGui::CustomButton(const char* label, const ImVec2& size_arg, ImGuiButtonF
 		window->DrawList->AddRectFilled(total_bb.Min, total_bb.Max, background_color, style.FrameRounding);
 		window->DrawList->AddText(ImVec2(TextPos.x, TextPos.y), text_color[0], label);
 	}
-
-	// Render
-	//const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
-	//RenderNavCursor(total_bb, id);
-   // RenderFrame(total_bb.Min, total_bb.Max, col, true, style.FrameRounding);
-
-	//if (g.LogEnabled)
-	//    LogSetNextTextDecoration("[", "]");
-   // RenderTextClipped(total_bb.Min + style.FramePadding, total_bb.Max - style.FramePadding, label, NULL, &label_size, style.ButtonTextAlign, &total_bb);
-
-	// Automatically close popups
-	//if (pressed && !(flags & ImGuiButtonFlags_DontClosePopups) && (window->Flags & ImGuiWindowFlags_Popup))
-	//    CloseCurrentPopup();
 
 	IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags);
 	return pressed;
@@ -2077,9 +2059,10 @@ void ImGui::ReportHR(HRESULT hr)
 bool ImGui::RGBColorEdit3(const char* label, float* col)
 {
 	bool changed = false;
+	const float scale = CFG::cfg_Menu_DisplayScale;
 
 	// Color preview box - clickable to open color wheel
-	ImVec2 previewSize = ImVec2(80.0f, 20.0f);
+	ImVec2 previewSize = ImVec2(80.0f * scale, 20.0f * scale);
 	ImVec2 previewPos = ImGui::GetCursorScreenPos();
 
 	ImGui::InvisibleButton(("##ColorPreview" + std::string(label)).c_str(), previewSize);
@@ -2087,8 +2070,8 @@ bool ImGui::RGBColorEdit3(const char* label, float* col)
 
 	// Draw color preview
 	ImU32 preview_color = IM_COL32((int)(col[0] * 255), (int)(col[1] * 255), (int)(col[2] * 255), 255);
-	ImGui::GetWindowDrawList()->AddRectFilled(previewPos, ImVec2(previewPos.x + previewSize.x, previewPos.y + previewSize.y), preview_color, 3.0f);
-	ImGui::GetWindowDrawList()->AddRect(previewPos, ImVec2(previewPos.x + previewSize.x, previewPos.y + previewSize.y), IM_COL32(100, 100, 100, 255), 3.0f, 0, 1.0f);
+	ImGui::GetWindowDrawList()->AddRectFilled(previewPos, ImVec2(previewPos.x + previewSize.x, previewPos.y + previewSize.y), preview_color, 3.0f * scale);
+	ImGui::GetWindowDrawList()->AddRect(previewPos, ImVec2(previewPos.x + previewSize.x, previewPos.y + previewSize.y), IM_COL32(100, 100, 100, 255), 3.0f * scale, 0, 1.0f);
 
 	// Handle color picker popup
 	if (preview_clicked)
@@ -2113,8 +2096,8 @@ bool ImGui::RGBColorEdit3(const char* label, float* col)
 	ImGui::Text("%s", label);
 
 	// Compact RGB sliders with smaller text and no handles
-	ImGui::PushItemWidth(45.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2.0f, 1.0f)); // Smaller padding
+	ImGui::PushItemWidth(45.0f * scale);
+	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2.0f * scale, 1.0f * scale)); // Smaller padding
 	ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, 0.0f); // Remove slider handles
 	ImGui::PushFont(small_font); // Smaller text
 
@@ -2135,9 +2118,10 @@ bool ImGui::RGBColorEdit3(const char* label, float* col)
 bool ImGui::RGBColorEdit4(const char* label, float* col)
 {
 	bool changed = false;
+	const float scale = CFG::cfg_Menu_DisplayScale;
 
 	// Color preview box - clickable to open color wheel
-	ImVec2 previewSize = ImVec2(80.0f, 20.0f);
+	ImVec2 previewSize = ImVec2(80.0f * scale, 20.0f * scale);
 	ImVec2 previewPos = ImGui::GetCursorScreenPos();
 
 	ImGui::InvisibleButton(("##ColorPreview" + std::string(label)).c_str(), previewSize);
@@ -2145,8 +2129,8 @@ bool ImGui::RGBColorEdit4(const char* label, float* col)
 
 	// Draw color preview with alpha
 	ImU32 preview_color = IM_COL32((int)(col[0] * 255), (int)(col[1] * 255), (int)(col[2] * 255), (int)(col[3] * 255));
-	ImGui::GetWindowDrawList()->AddRectFilled(previewPos, ImVec2(previewPos.x + previewSize.x, previewPos.y + previewSize.y), preview_color, 3.0f);
-	ImGui::GetWindowDrawList()->AddRect(previewPos, ImVec2(previewPos.x + previewSize.x, previewPos.y + previewSize.y), IM_COL32(100, 100, 100, 255), 3.0f, 0, 1.0f);
+	ImGui::GetWindowDrawList()->AddRectFilled(previewPos, ImVec2(previewPos.x + previewSize.x, previewPos.y + previewSize.y), preview_color, 3.0f * scale);
+	ImGui::GetWindowDrawList()->AddRect(previewPos, ImVec2(previewPos.x + previewSize.x, previewPos.y + previewSize.y), IM_COL32(100, 100, 100, 255), 3.0f * scale, 0, 1.0f);
 
 	// Handle color picker popup
 	if (preview_clicked)
@@ -2167,8 +2151,8 @@ bool ImGui::RGBColorEdit4(const char* label, float* col)
 	ImGui::Text("%s", label);
 
 	// Compact RGBA sliders with smaller text and no handles - horizontal layout
-	ImGui::PushItemWidth(40.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2.0f, 1.0f)); // Smaller padding
+	ImGui::PushItemWidth(40.0f * scale);
+	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2.0f * scale, 1.0f * scale)); // Smaller padding
 	ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, 0.0f); // Remove slider handles
 	ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(background_color.Value.x + 0.1f, background_color.Value.y + 0.1f, background_color.Value.z + 0.1f, background_color.Value.w));
 	ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImVec4(background_color.Value.x + 0.15f, background_color.Value.y + 0.15f, background_color.Value.z + 0.15f, background_color.Value.w));
