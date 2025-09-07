@@ -156,7 +156,7 @@ namespace DX12
 	}
 
 	bool DX12::CreateHook(uint16_t Index, void** Original, void* Function) {
-		assert(_index >= 0 && _original != NULL && _function != NULL);
+		assert(Index >= 0 && Original != NULL && Function != NULL);
 		void* target = (void*)MethodsTable[Index];
 		if (MH_CreateHook(target, Function, Original) != MH_OK || MH_EnableHook(target) != MH_OK) {
 			return false;
