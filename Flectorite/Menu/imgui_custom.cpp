@@ -1437,27 +1437,151 @@ bool ImGui::CustomSelectable(const char* label, bool selected, ImGuiSelectableFl
 	return pressed; //-V1020
 }
 
+//bool ImGui::KeybindWithToggle(const char* label, bool* v, int* key)
+//{
+//	const float scale = CFG::cfg_Menu_DisplayScale;
+//	ImGuiStyle& style = ImGui::GetStyle();
+//	std::string picker_name = "##keybind" + std::string(label);
+//
+//	const float total_w = ImGui::GetContentRegionAvail().x;
+//	const float keybind_w = 60 * scale;
+//	const float checkbox_w = total_w - keybind_w - style.ItemSpacing.x;
+//
+//	PushItemWidth(checkbox_w);
+//	bool Ret = ImGui::CustomCheckbox(label, v);
+//	PopItemWidth();
+//
+//	SameLine(0, style.ItemSpacing.x);
+//
+//	PushItemWidth(keybind_w);
+//	ImGui::KeybindBox(picker_name.c_str(), key);
+//	PopItemWidth();
+//
+//	return Ret;
+//}
+
+struct KeybindWithToggle_State {
+	float AnimValue;
+	float circle_offset;
+	ImVec4 rect_color;
+	ImVec4 circle_color;
+	ImVec4 shadow_color;
+
+	bool IsBindingMode;
+	ImVec4 key_text_color;
+};
+
 bool ImGui::KeybindWithToggle(const char* label, bool* v, int* key)
 {
+	ImGuiWindow* window = GetCurrentWindow();
+	if (window->SkipItems)
+		return false;
+
 	const float scale = CFG::cfg_Menu_DisplayScale;
-	ImGuiStyle& style = ImGui::GetStyle();
-	std::string picker_name = "##keybind" + std::string(label);
+	ImGuiContext& g = *GImGui;
+	const ImGuiStyle& style = g.Style;
+	const ImGuiID id = window->GetID(label);
 
-	const float total_w = ImGui::GetContentRegionAvail().x;
-	const float keybind_w = 60 * scale;
-	const float checkbox_w = total_w - keybind_w - style.ItemSpacing.x;
+	const float w = ImGui::GetContentRegionAvail().x;
+	const float h = 46.0f * scale;
 
-	PushItemWidth(checkbox_w);
-	bool Ret = ImGui::CustomCheckbox(label, v);
-	PopItemWidth();
+	const ImVec2 pos = window->DC.CursorPos;
+	const ImRect total_bb(pos, pos + ImVec2(w, h));
 
-	SameLine(0, style.ItemSpacing.x);
+	const float keybind_w = 60.0f * scale;
+	const ImRect keybind_bb(total_bb.Max - ImVec2(keybind_w + 14.0f * scale, 32.0f * scale), total_bb.Max - ImVec2(14.0f * scale, 14.0f * scale));
 
-	PushItemWidth(keybind_w);
-	ImGui::KeybindBox(picker_name.c_str(), key);
-	PopItemWidth();
+	const ImRect main_bb(total_bb.Min, total_bb.Max);
 
-	return Ret;
+	ItemSize(total_bb, style.FramePadding.y);
+	if (!ItemAdd(total_bb, id))
+		return false;
+
+	bool value_changed = false;
+	bool hovered, held;
+
+	bool pressed = ButtonBehavior(total_bb, id, &hovered, &held);
+
+	static std::map<ImGuiID, KeybindWithToggle_State> States;
+	auto State = States.find(id);
+	if (State == States.end())
+	{
+		States.insert({ id, { (*v ? 1.0f : 0.0f), (*v ? 13.f * scale : 0.f), second_color, foreground_color, GetColorWithAlpha(main_color, 0.f), false, text_color[1] } });
+		State = States.find(id);
+	}
+
+	if (pressed)
+	{
+		if (ImGui::IsMouseHoveringRect(keybind_bb.Min, keybind_bb.Max, false))
+		{
+			State->second.IsBindingMode = true;
+		}
+		else
+		{
+			*v = !(*v);
+			value_changed = true;
+		}
+	}
+
+	if (State->second.IsBindingMode)
+	if (State->second.IsBindingMode)
+	{
+		IsBindingKey = true;
+		for (auto i = 0; i < 5; i++) {
+			if (g.IO.MouseDown[i]) {
+				*key = ImGuiKey_MouseLeft + i;
+				State->second.IsBindingMode = false;
+				IsBindingKey = false;
+			}
+		}
+		for (int i = (int)ImGuiKey_Tab; i < (int)ImGuiKey_COUNT; i++)
+		{
+			if (IsKeyDown(ImGuiKey(i)))
+			{
+				*key = i;
+				State->second.IsBindingMode = false;
+				IsBindingKey = false;
+			}
+		}
+	}
+
+	if (*v)
+		State->second.AnimValue = ImMin(State->second.AnimValue + anim_speed, 1.0f);
+	else
+		State->second.AnimValue = ImMax(State->second.AnimValue - anim_speed, 0.0f);
+
+	State->second.rect_color = ImLerp(State->second.rect_color, *v ? GetColorWithAlpha(main_color, 0.3f) : second_color, State->second.AnimValue);
+	State->second.circle_color = ImLerp(State->second.circle_color, *v ? main_color : foreground_color, State->second.AnimValue);
+	State->second.shadow_color = ImLerp(State->second.shadow_color, *v ? main_color : GetColorWithAlpha(main_color, 0.f), State->second.AnimValue);
+	State->second.circle_offset = ImLerp(State->second.circle_offset, *v ? 13.f * scale : 0.f, State->second.AnimValue);
+	State->second.key_text_color = ImLerp(State->second.key_text_color, State->second.IsBindingMode ? main_color : text_color[1], anim_speed);
+
+	window->DrawList->AddRectFilled(total_bb.Min, total_bb.Max, background_color, style.FrameRounding);
+
+	window->DrawList->AddText(ImVec2(total_bb.Min.x + 12.f * scale, GetTextCenterPosition(total_bb.Min, total_bb.Max, label).y), text_color[0], label);
+
+	const ImRect check_bb(total_bb.Max - ImVec2(keybind_w + 14.0f * scale + 45.0f * scale, 32.0f * scale), total_bb.Max - ImVec2(keybind_w + 14.0f * scale + 14.0f * scale, 14.0f * scale));
+	window->DrawList->AddRectFilled(check_bb.Min, check_bb.Max, GetColorU32(State->second.rect_color), 360);
+	window->DrawList->AddCircleFilled(check_bb.Min + ImVec2(9 * scale + State->second.circle_offset, 8.5f * scale), 5.5f * scale, GetColorU32(State->second.circle_color), 360);
+	window->DrawList->AddShadowCircle(check_bb.Min + ImVec2(9 * scale + State->second.circle_offset, 8.5f * scale), 3.5f * scale, GetColorU32(State->second.shadow_color), 70.f * scale, ImVec2(0, 0), 0, 360);
+
+	const char* key_name = "...";
+	if (!State->second.IsBindingMode) {
+		if (*key <= 0 || *key == ImGuiKey_None) key_name = "None";
+		else if (*key >= ImGuiKey_MouseLeft && *key <= ImGuiKey_MouseX2) {
+			static const char* mouse_keys[] = { "LMB", "RMB", "MMB", "MX1", "MX2" };
+			key_name = mouse_keys[*key - ImGuiKey_MouseLeft];
+		}
+		else {
+			key_name = GetKeyName((ImGuiKey)*key);
+		}
+	}
+	PushFont(small_font);
+	window->DrawList->AddText(GetTextCenterPosition(keybind_bb.Min, keybind_bb.Max, key_name), GetColorU32(State->second.key_text_color), key_name);
+	PopFont();
+
+	RenderNavHighlight(total_bb, id);
+	return value_changed;
 }
 
 void ImGui::Keybind(const char* label, int* key)
